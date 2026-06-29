@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VenueRouteImport } from './routes/venue'
 import { Route as RoomsRouteImport } from './routes/rooms'
+import { Route as MenuRouteImport } from './routes/menu'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const VenueRoute = VenueRouteImport.update({
 const RoomsRoute = RoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MenuRoute = MenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/menu': typeof MenuRoute
   '/rooms': typeof RoomsRoute
   '/venue': typeof VenueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/menu': typeof MenuRoute
   '/rooms': typeof RoomsRoute
   '/venue': typeof VenueRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/menu': typeof MenuRoute
   '/rooms': typeof RoomsRoute
   '/venue': typeof VenueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/rooms' | '/venue'
+  fullPaths: '/' | '/about' | '/menu' | '/rooms' | '/venue'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/rooms' | '/venue'
-  id: '__root__' | '/' | '/about' | '/rooms' | '/venue'
+  to: '/' | '/about' | '/menu' | '/rooms' | '/venue'
+  id: '__root__' | '/' | '/about' | '/menu' | '/rooms' | '/venue'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  MenuRoute: typeof MenuRoute
   RoomsRoute: typeof RoomsRoute
   VenueRoute: typeof VenueRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/rooms'
       fullPath: '/rooms'
       preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/menu': {
+      id: '/menu'
+      path: '/menu'
+      fullPath: '/menu'
+      preLoaderRoute: typeof MenuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  MenuRoute: MenuRoute,
   RoomsRoute: RoomsRoute,
   VenueRoute: VenueRoute,
 }
