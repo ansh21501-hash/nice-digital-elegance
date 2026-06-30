@@ -89,9 +89,10 @@ function mapDbRooms(dbRooms: Awaited<ReturnType<typeof getRooms>>): DisplayRoom[
 
 function Rooms() {
   const { open } = useBooking();
-  const { dbRooms } = Route.useLoaderData();
+  const { dbRooms, availability } = Route.useLoaderData();
   const mapped = mapDbRooms(dbRooms);
   const list: DisplayRoom[] = mapped.length ? mapped : (rooms as DisplayRoom[]);
+  const availByRoom = new Map((availability ?? []).map((a: any) => [a.roomId, a]));
   return (
     <>
       <PageHeader eyebrow="Accommodations" title="Luxury Rooms & Suites" sub="Experience elegance and comfort in our premium accommodations" image={site.images.deluxe} />
