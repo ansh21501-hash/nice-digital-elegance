@@ -160,6 +160,7 @@ function RootComponent() {
           <Outlet />
         </main>
         {!isAdmin && <Footer />}
+        {!isAdmin && <OffersPopup />}
         <Toaster position="top-center" />
       </BookingProvider>
     </QueryClientProvider>
