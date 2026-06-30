@@ -16,6 +16,7 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: "About Nice Hotel And Restaurant" },
       { property: "og:url", content: "/about" },
       { property: "og:image", content: site.images.executive },
+      { name: "twitter:image", content: site.images.executive },
     ],
     links: [{ rel: "canonical", href: "/about" }],
   }),
