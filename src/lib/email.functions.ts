@@ -44,8 +44,8 @@ export const sendBookingEmail = createServerFn({ method: "POST" })
     const { sendEmails, adminEmail } = await import("./email.server");
     const t = await import("./email-templates");
     await sendEmails([
-      { to: data.email, subject: "Your reservation request — Nice Hotel & Restaurant", html: t.bookingGuestEmail(data) },
-      { to: adminEmail(), subject: `New booking: ${data.name}`, html: t.bookingAdminEmail(data), reply: data.email },
+      { to: data.email, subject: "Your reservation request — Nice Hotel & Restaurant", html: t.bookingGuestEmail(data), type: "booking_confirmation", payload: { type: "booking_confirmation", to: data.email, data } },
+      { to: adminEmail(), subject: `New booking: ${data.name}`, html: t.bookingAdminEmail(data), reply: data.email, type: "admin_alert", payload: { type: "admin_alert", to: adminEmail(), data } },
     ]);
     return { ok: true };
   });
@@ -72,8 +72,8 @@ export const sendContactEmail = createServerFn({ method: "POST" })
       const { sendEmails, adminEmail } = await import("./email.server");
       const t = await import("./email-templates");
       await sendEmails([
-        { to: data.email, subject: "We received your message — Nice Hotel & Restaurant", html: t.contactGuestEmail(data) },
-        { to: adminEmail(), subject: `New contact enquiry: ${data.name}`, html: t.contactAdminEmail(data), reply: data.email },
+        { to: data.email, subject: "We received your message — Nice Hotel & Restaurant", html: t.contactGuestEmail(data), type: "contact", payload: { type: "contact", to: data.email, data } },
+        { to: adminEmail(), subject: `New contact enquiry: ${data.name}`, html: t.contactAdminEmail(data), reply: data.email, type: "admin_alert" },
       ]);
     } catch (e) {
       console.error("Contact email error", e);
@@ -87,8 +87,8 @@ export const sendPaymentReceiptEmail = createServerFn({ method: "POST" })
     const { sendEmails, adminEmail } = await import("./email.server");
     const t = await import("./email-templates");
     await sendEmails([
-      { to: data.email, subject: "Payment receipt — Nice Hotel & Restaurant", html: t.paymentReceiptEmail(data) },
-      { to: adminEmail(), subject: `Payment received: ${data.name}`, html: t.paymentAdminEmail(data), reply: data.email },
+      { to: data.email, subject: "Payment receipt — Nice Hotel & Restaurant", html: t.paymentReceiptEmail(data), type: "payment", payload: { type: "payment", to: data.email, data } },
+      { to: adminEmail(), subject: `Payment received: ${data.name}`, html: t.paymentAdminEmail(data), reply: data.email, type: "admin_alert" },
     ]);
     return { ok: true };
   });
@@ -125,8 +125,8 @@ export const sendVenueEnquiry = createServerFn({ method: "POST" })
       const t = await import("./email-templates");
       const guestMsg = { name: data.name, email: data.email, phone: data.phone, message: summary };
       await sendEmails([
-        { to: data.email, subject: "We received your venue booking request — Nice Hotel & Restaurant", html: t.contactGuestEmail(guestMsg) },
-        { to: adminEmail(), subject: `New venue booking: ${data.name} (${data.eventType})`, html: t.contactAdminEmail(guestMsg), reply: data.email },
+        { to: data.email, subject: "We received your venue booking request — Nice Hotel & Restaurant", html: t.contactGuestEmail(guestMsg), type: "venue", payload: { type: "venue", to: data.email, data } },
+        { to: adminEmail(), subject: `New venue booking: ${data.name} (${data.eventType})`, html: t.contactAdminEmail(guestMsg), reply: data.email, type: "admin_alert" },
       ]);
     } catch (e) {
       console.error("Venue enquiry email error", e);
