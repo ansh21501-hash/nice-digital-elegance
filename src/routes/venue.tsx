@@ -40,7 +40,8 @@ export const Route = createFileRoute("/venue")({
 function Venue() {
   const { open } = useBooking();
   const { dbEvents } = Route.useLoaderData();
-  const venueList = dbEvents.length
+  type VenueCard = { slug: string; name: string; sub: string; badge: string; rating: number; capacity: string; size: string; floor: string; image: string; comingSoon: boolean; description: string; amenities: string[] };
+  const venueList: VenueCard[] = dbEvents.length
     ? dbEvents.map((v: any) => ({
         slug: v.id as string,
         name: v.name as string,
