@@ -22,10 +22,13 @@ export const Route = createFileRoute("/api/public/razorpay/order")({
         const parsed = schema.safeParse(body);
         if (!parsed.success) return Response.json({ error: "Invalid input" }, { status: 400 });
 
-        const { computeQuote } = await import("@/lib/booking.server");
+        const { computeQuote, assertAvailable } = await import("@/lib/booking.server");
         let quote;
         try { quote = await computeQuote(parsed.data.roomId, parsed.data.checkIn, parsed.data.checkOut); }
         catch (e: any) { return Response.json({ error: e?.message ?? "Quote failed" }, { status: 400 }); }
+
+        try { await assertAvailable(parsed.data.roomId, parsed.data.checkIn, parsed.data.checkOut); }
+        catch (e: any) { return Response.json({ error: e?.message ?? "Not available" }, { status: 409 }); }
 
         const amountPaise = Math.round(quote.amountInr * 100);
         const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
