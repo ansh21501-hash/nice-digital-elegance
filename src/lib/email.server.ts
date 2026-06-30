@@ -1,16 +1,20 @@
 /**
- * Email sending layer.
+ * Email sending layer — Resend (via the Lovable connector gateway).
  *
- * NOTE: No email provider is wired up right now. The previous implementation
- * used `worker-mailer` (which requires `cloudflare:sockets`) and would not
- * build/run off Cloudflare Workers. It has been removed so the app builds on
- * any host. Sends are recorded in `email_logs` as "skipped" so booking /
- * contact / venue flows continue uninterrupted and a real provider
- * (Lovable email, Nodemailer, an HTTP API, etc.) can be added later without
- * touching call sites.
+ * Sends are routed through the gateway using LOVABLE_API_KEY + RESEND_API_KEY,
+ * so no SMTP/TCP is required and it runs on the edge runtime. Every attempt is
+ * recorded in `email_logs`. Failures never throw so booking / contact / venue
+ * flows continue uninterrupted.
  */
 
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const FROM_NAME = process.env.HOTEL_NAME || "Nice Hotel & Restaurant";
+
+function fromAddress() {
+  // Use a verified sender if configured, otherwise Resend's test sender.
+  const email = process.env.FROM_EMAIL || "onboarding@resend.dev";
+  return `${FROM_NAME} <${email}>`;
+}
 
 export function adminEmail() {
   return process.env.ADMIN_EMAIL || process.env.GMAIL_USER || process.env.SMTP_USER || "";
@@ -49,14 +53,47 @@ async function logMessage(m: Message, status: string, error_message: string | nu
 }
 
 /**
- * Records the email and returns false (nothing is actually sent yet).
- * Never throws — callers stay resilient so the booking / contact flow is
- * never broken by email handling.
+ * Sends an email through the Resend gateway. Never throws — callers stay
+ * resilient so the booking / contact flow is never broken by email handling.
  */
 export async function sendEmail(m: Message): Promise<boolean> {
-  void FROM_NAME;
-  await logMessage(m, "skipped", "No email provider configured");
-  return false;
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
+
+  if (!lovableKey || !resendKey) {
+    await logMessage(m, "failed", "Email provider not configured (missing API key)");
+    return false;
+  }
+
+  try {
+    const res = await fetch(`${GATEWAY_URL}/emails`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": resendKey,
+      },
+      body: JSON.stringify({
+        from: fromAddress(),
+        to: Array.isArray(m.to) ? m.to : [m.to],
+        subject: m.subject,
+        html: m.html,
+        ...(m.reply ? { reply_to: m.reply } : {}),
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      await logMessage(m, "failed", `Resend ${res.status}: ${body.slice(0, 500)}`);
+      return false;
+    }
+
+    await logMessage(m, "sent", null);
+    return true;
+  } catch (e: any) {
+    await logMessage(m, "failed", e?.message ?? "Unknown send error");
+    return false;
+  }
 }
 
 /** Record a batch of emails; best-effort, each logged independently. */
