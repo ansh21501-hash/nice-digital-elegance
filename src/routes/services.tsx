@@ -58,9 +58,9 @@ function Services() {
     ? Object.entries(grouped)
     : (Object.entries(services) as [string, GroupedService[]][]);
 
-  const offerList = dbOffers.length
+  const offerList: { title: string; text: string; tag: string }[] = dbOffers.length
     ? dbOffers.map((o: any) => ({ title: o.title, text: o.description ?? "", tag: o.type ?? "Offer" }))
-    : offers;
+    : offers.map((o) => ({ title: o.title, text: o.text, tag: o.tag }));
 
   return (
     <>
