@@ -7,14 +7,18 @@ import { PageHeader, SectionHeading, CtaBand } from "@/components/site/ui";
 import { useBooking } from "@/components/site/booking";
 import { TiltCard } from "@/components/site/TiltCard";
 import { breadcrumbLd } from "@/lib/seo";
-import { getRooms } from "@/lib/public.functions";
+import { getRooms, getRoomAvailability } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/rooms")({
   loader: async () => {
     try {
-      return { dbRooms: await getRooms() };
+      const [dbRooms, availability] = await Promise.all([getRooms(), getRoomAvailability()]);
+      return { dbRooms, availability };
     } catch {
-      return { dbRooms: [] as Awaited<ReturnType<typeof getRooms>> };
+      return {
+        dbRooms: [] as Awaited<ReturnType<typeof getRooms>>,
+        availability: [] as Awaited<ReturnType<typeof getRoomAvailability>>,
+      };
     }
   },
   head: () => ({
