@@ -102,6 +102,13 @@ export const sendPaymentReceiptEmail = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { sendEmails, adminEmail } = await import("./email.server");
     const t = await import("./email-templates");
+    const { notify } = await import("./notifications.server");
+    await notify({
+      type: "payment",
+      title: `Payment received — ${data.name}`,
+      body: `₹${data.amount}${data.reference ? ` · ${data.reference}` : ""}`,
+      link: "/admin/bookings",
+    });
     await sendEmails([
       { to: data.email, subject: "Payment receipt — Nice Hotel & Restaurant", html: t.paymentReceiptEmail(data), type: "payment", payload: { type: "payment", to: data.email, data } },
       { to: adminEmail(), subject: `Payment received: ${data.name}`, html: t.paymentAdminEmail(data), reply: data.email, type: "admin_alert" },
