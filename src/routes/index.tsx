@@ -34,6 +34,18 @@ export const Route = createFileRoute("/")({
     links: [{ rel: "canonical", href: "/" }],
     scripts: [breadcrumbLd([{ name: "Home", path: "/" }])],
   }),
+  errorComponent: () => (
+    <div className="container-luxe flex min-h-[60vh] flex-col items-center justify-center py-24 text-center">
+      <h1 className="font-display text-3xl text-charcoal">Welcome to {site.name}</h1>
+      <p className="mt-3 text-muted-foreground">We're having a brief hiccup loading this page. Please refresh, or call us at {site.phone}.</p>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="container-luxe flex min-h-[60vh] flex-col items-center justify-center py-24 text-center">
+      <h1 className="font-display text-3xl text-charcoal">Page not found</h1>
+      <Link to="/" className="mt-4 text-gold underline">Back to home</Link>
+    </div>
+  ),
   component: Home,
 });
 
