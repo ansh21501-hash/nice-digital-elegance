@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin.rooms'
+import { Route as AuthenticatedAdminReviewsRouteImport } from './routes/_authenticated/admin.reviews'
 import { Route as AuthenticatedAdminOffersRouteImport } from './routes/_authenticated/admin.offers'
 import { Route as AuthenticatedAdminMenuRouteImport } from './routes/_authenticated/admin.menu'
 import { Route as AuthenticatedAdminEnquiriesRouteImport } from './routes/_authenticated/admin.enquiries'
@@ -91,6 +92,12 @@ const AuthenticatedAdminRoomsRoute = AuthenticatedAdminRoomsRouteImport.update({
   path: '/rooms',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminReviewsRoute =
+  AuthenticatedAdminReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminOffersRoute =
   AuthenticatedAdminOffersRouteImport.update({
     id: '/offers',
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/enquiries': typeof AuthenticatedAdminEnquiriesRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/admin/offers': typeof AuthenticatedAdminOffersRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -147,6 +155,7 @@ export interface FileRoutesByTo {
   '/admin/enquiries': typeof AuthenticatedAdminEnquiriesRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/admin/offers': typeof AuthenticatedAdminOffersRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/enquiries': typeof AuthenticatedAdminEnquiriesRoute
   '/_authenticated/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/_authenticated/admin/offers': typeof AuthenticatedAdminOffersRoute
+  '/_authenticated/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/admin/enquiries'
     | '/admin/menu'
     | '/admin/offers'
+    | '/admin/reviews'
     | '/admin/rooms'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin/enquiries'
     | '/admin/menu'
     | '/admin/offers'
+    | '/admin/reviews'
     | '/admin/rooms'
     | '/admin'
   id:
@@ -223,6 +235,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/enquiries'
     | '/_authenticated/admin/menu'
     | '/_authenticated/admin/offers'
+    | '/_authenticated/admin/reviews'
     | '/_authenticated/admin/rooms'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRoomsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/reviews': {
+      id: '/_authenticated/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AuthenticatedAdminReviewsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/offers': {
       id: '/_authenticated/admin/offers'
       path: '/offers'
@@ -369,6 +389,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminEnquiriesRoute: typeof AuthenticatedAdminEnquiriesRoute
   AuthenticatedAdminMenuRoute: typeof AuthenticatedAdminMenuRoute
   AuthenticatedAdminOffersRoute: typeof AuthenticatedAdminOffersRoute
+  AuthenticatedAdminReviewsRoute: typeof AuthenticatedAdminReviewsRoute
   AuthenticatedAdminRoomsRoute: typeof AuthenticatedAdminRoomsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -378,6 +399,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminEnquiriesRoute: AuthenticatedAdminEnquiriesRoute,
   AuthenticatedAdminMenuRoute: AuthenticatedAdminMenuRoute,
   AuthenticatedAdminOffersRoute: AuthenticatedAdminOffersRoute,
+  AuthenticatedAdminReviewsRoute: AuthenticatedAdminReviewsRoute,
   AuthenticatedAdminRoomsRoute: AuthenticatedAdminRoomsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
