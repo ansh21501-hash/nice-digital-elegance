@@ -28,3 +28,25 @@ export const getOffers = createServerFn({ method: "GET" }).handler(async () => {
   if (error) throw new Error(error.message);
   return data ?? [];
 });
+
+export const getServices = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = await publicClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select("id,title,description,group_name,icon,tags,sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+});
+
+export const getEvents = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = await publicClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select("id,name,subtitle,badge,description,capacity,size,floor,price,image,amenities,coming_soon,sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+});
