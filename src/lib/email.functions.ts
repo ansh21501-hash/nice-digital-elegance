@@ -133,3 +133,60 @@ export const sendVenueEnquiry = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+/* ---------------------------------------------------------------- *
+ * Unified dispatcher — mirrors a "send-email" edge function.        *
+ * Accepts { type, to, data } and renders the right luxury template.  *
+ * ---------------------------------------------------------------- */
+const sendEmailSchema = z.object({
+  type: z.string().min(1).max(60),
+  to: z.string().email(),
+  data: z.record(z.string(), z.any()).optional(),
+  cc: z.string().email().optional(),
+  subject: z.string().max(200).optional(),
+});
+
+export const sendEmail = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => sendEmailSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { sendEmail: send } = await import("./email.server");
+    const { renderEmail } = await import("./email-templates");
+    const rendered = renderEmail(data.type, data.data ?? {});
+    const ok = await send({
+      to: data.to,
+      subject: data.subject || rendered.subject,
+      html: rendered.html,
+      type: data.type,
+      payload: { type: data.type, to: data.to, data: data.data ?? {}, subject: data.subject },
+    });
+    return { ok };
+  });
+
+const newsletterSchema = z.object({
+  subject: z.string().min(1).max(200),
+  body: z.string().min(1).max(20000),
+  title: z.string().max(200).optional(),
+  recipients: z.array(z.string().email()).min(1).max(2000),
+  ctaUrl: z.string().max(300).optional(),
+  ctaLabel: z.string().max(60).optional(),
+});
+
+export const sendNewsletter = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => newsletterSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { sendEmail: send } = await import("./email.server");
+    const { renderEmail } = await import("./email-templates");
+    let sent = 0;
+    for (const to of data.recipients) {
+      const r = renderEmail("newsletter", {
+        subject: data.subject, title: data.title, body: data.body,
+        ctaUrl: data.ctaUrl, ctaLabel: data.ctaLabel,
+      });
+      const ok = await send({
+        to, subject: data.subject, html: r.html, type: "newsletter",
+        payload: { type: "newsletter", to, data: { ...data, recipients: undefined } },
+      });
+      if (ok) sent += 1;
+    }
+    return { ok: true, sent, total: data.recipients.length };
+  });

@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminOffersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminMenuRouteImport } from './routes/_authenticated/admin.menu'
 import { Route as AuthenticatedAdminEventsRouteImport } from './routes/_authenticated/admin.events'
 import { Route as AuthenticatedAdminEnquiriesRouteImport } from './routes/_authenticated/admin.enquiries'
+import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin.emails'
 import { Route as AuthenticatedAdminCmsRouteImport } from './routes/_authenticated/admin.cms'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin.bookings'
 import { Route as ApiPublicRazorpayVerifyRouteImport } from './routes/api/public/razorpay.verify'
@@ -131,6 +132,12 @@ const AuthenticatedAdminEnquiriesRoute =
     path: '/enquiries',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEmailsRoute =
+  AuthenticatedAdminEmailsRouteImport.update({
+    id: '/emails',
+    path: '/emails',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCmsRoute = AuthenticatedAdminCmsRouteImport.update({
   id: '/cms',
   path: '/cms',
@@ -167,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/enquiries': typeof AuthenticatedAdminEnquiriesRoute
   '/admin/events': typeof AuthenticatedAdminEventsRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
@@ -190,6 +198,7 @@ export interface FileRoutesByTo {
   '/venue': typeof VenueRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/enquiries': typeof AuthenticatedAdminEnquiriesRoute
   '/admin/events': typeof AuthenticatedAdminEventsRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
@@ -216,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/cms': typeof AuthenticatedAdminCmsRoute
+  '/_authenticated/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin/enquiries': typeof AuthenticatedAdminEnquiriesRoute
   '/_authenticated/admin/events': typeof AuthenticatedAdminEventsRoute
   '/_authenticated/admin/menu': typeof AuthenticatedAdminMenuRoute
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/bookings'
     | '/admin/cms'
+    | '/admin/emails'
     | '/admin/enquiries'
     | '/admin/events'
     | '/admin/menu'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/venue'
     | '/admin/bookings'
     | '/admin/cms'
+    | '/admin/emails'
     | '/admin/enquiries'
     | '/admin/events'
     | '/admin/menu'
@@ -290,6 +302,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/cms'
+    | '/_authenticated/admin/emails'
     | '/_authenticated/admin/enquiries'
     | '/_authenticated/admin/events'
     | '/_authenticated/admin/menu'
@@ -452,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnquiriesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/emails': {
+      id: '/_authenticated/admin/emails'
+      path: '/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AuthenticatedAdminEmailsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/cms': {
       id: '/_authenticated/admin/cms'
       path: '/cms'
@@ -486,6 +506,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBookingsRoute: typeof AuthenticatedAdminBookingsRoute
   AuthenticatedAdminCmsRoute: typeof AuthenticatedAdminCmsRoute
+  AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminEnquiriesRoute: typeof AuthenticatedAdminEnquiriesRoute
   AuthenticatedAdminEventsRoute: typeof AuthenticatedAdminEventsRoute
   AuthenticatedAdminMenuRoute: typeof AuthenticatedAdminMenuRoute
@@ -498,6 +519,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBookingsRoute: AuthenticatedAdminBookingsRoute,
   AuthenticatedAdminCmsRoute: AuthenticatedAdminCmsRoute,
+  AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminEnquiriesRoute: AuthenticatedAdminEnquiriesRoute,
   AuthenticatedAdminEventsRoute: AuthenticatedAdminEventsRoute,
   AuthenticatedAdminMenuRoute: AuthenticatedAdminMenuRoute,
