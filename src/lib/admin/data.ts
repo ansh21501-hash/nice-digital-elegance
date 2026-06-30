@@ -13,7 +13,9 @@ export type TableName =
   | "profiles"
   | "user_roles"
   | "audit_logs"
-  | "site_settings";
+  | "site_settings"
+  | "services"
+  | "events";
 
 export function useRows<T = Record<string, unknown>>(
   table: TableName,
