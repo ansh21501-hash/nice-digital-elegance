@@ -16,10 +16,8 @@ const fields: Field[] = [
   { name: "is_active", label: "Active (visible)", type: "boolean", default: true },
   { name: "sort_order", label: "Sort Order", type: "number", default: 0 },
   { name: "amenities", label: "Amenities", type: "tags", fullWidth: true },
-  { name: "images", label: "Image URLs", type: "tags", fullWidth: true },
+  { name: "images", label: "Room Image", type: "imagelist", fullWidth: true },
   { name: "description", label: "Description", type: "textarea" },
-  { name: "seo_title", label: "SEO Title", type: "text" },
-  { name: "seo_description", label: "SEO Description", type: "textarea" },
 ];
 
 const columns: Column[] = [

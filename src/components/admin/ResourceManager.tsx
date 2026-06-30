@@ -17,9 +17,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useRows, useInvalidate, upsertRow, deleteRow, type TableName } from "@/lib/admin/data";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { ReactNode } from "react";
 
-export type FieldType = "text" | "textarea" | "number" | "boolean" | "select" | "tags" | "date" | "datetime";
+export type FieldType = "text" | "textarea" | "number" | "boolean" | "select" | "tags" | "date" | "datetime" | "image" | "imagelist";
 
 export type SelectOption = string | { value: string; label: string };
 
@@ -78,7 +79,11 @@ export function ResourceManager({ table, columns, fields, orderBy = "created_at"
     const f: Record<string, unknown> = {};
     for (const fl of fields) {
       const v = row[fl.name];
-      f[fl.name] = fl.type === "datetime" && v ? String(v).slice(0, 16) : fl.type === "date" && v ? String(v).slice(0, 10) : v ?? (fl.type === "tags" ? [] : fl.type === "boolean" ? false : "");
+      f[fl.name] =
+        fl.type === "datetime" && v ? String(v).slice(0, 16)
+        : fl.type === "date" && v ? String(v).slice(0, 10)
+        : fl.type === "imagelist" ? (Array.isArray(v) ? v[0] ?? "" : v ?? "")
+        : v ?? (fl.type === "tags" ? [] : fl.type === "boolean" ? false : "");
     }
     setEditing(row); setForm(f); setOpen(true);
   };
@@ -91,6 +96,7 @@ export function ResourceManager({ table, columns, fields, orderBy = "created_at"
         let v = form[f.name];
         if (f.type === "number") v = v === "" || v === null ? null : Number(v);
         if (f.type === "tags") v = Array.isArray(v) ? v : String(v || "").split(",").map((s) => s.trim()).filter(Boolean);
+        if (f.type === "imagelist") v = v ? [v] : [];
         if ((f.type === "date" || f.type === "datetime") && v === "") v = null;
         payload[f.name] = v;
       }
@@ -198,6 +204,8 @@ export function ResourceManager({ table, columns, fields, orderBy = "created_at"
                   </Select>
                 ) : f.type === "tags" ? (
                   <Input value={Array.isArray(form[f.name]) ? (form[f.name] as string[]).join(", ") : String(form[f.name] ?? "")} placeholder="Comma separated" onChange={(e) => setForm({ ...form, [f.name]: e.target.value })} />
+                ) : f.type === "image" || f.type === "imagelist" ? (
+                  <ImageUpload value={String(form[f.name] ?? "")} onChange={(url) => setForm({ ...form, [f.name]: url })} />
                 ) : (
                   <Input type={f.type === "number" ? "number" : f.type === "date" ? "date" : f.type === "datetime" ? "datetime-local" : "text"} value={String(form[f.name] ?? "")} placeholder={f.placeholder} onChange={(e) => setForm({ ...form, [f.name]: e.target.value })} />
                 )}
@@ -220,7 +228,8 @@ export function StatusBadge({ value }: { value: string }) {
   const map: Record<string, string> = {
     confirmed: "bg-[#2E7D32]/10 text-[#2E7D32]", completed: "bg-[#2E7D32]/10 text-[#2E7D32]", approved: "bg-[#2E7D32]/10 text-[#2E7D32]", resolved: "bg-[#2E7D32]/10 text-[#2E7D32]", paid: "bg-[#2E7D32]/10 text-[#2E7D32]", available: "bg-[#2E7D32]/10 text-[#2E7D32]", active: "bg-[#2E7D32]/10 text-[#2E7D32]",
     pending: "bg-[#F9A825]/15 text-[#a37800]", unpaid: "bg-[#F9A825]/15 text-[#a37800]", cleaning: "bg-[#F9A825]/15 text-[#a37800]", reserved: "bg-[#F9A825]/15 text-[#a37800]",
+    checked_in: "bg-[#1565C0]/10 text-[#1565C0]", checked_out: "bg-[#6A1B9A]/10 text-[#6A1B9A]",
     cancelled: "bg-[#C62828]/10 text-[#C62828]", rejected: "bg-[#C62828]/10 text-[#C62828]", spam: "bg-[#C62828]/10 text-[#C62828]", maintenance: "bg-[#C62828]/10 text-[#C62828]", blocked: "bg-[#C62828]/10 text-[#C62828]", occupied: "bg-[#C62828]/10 text-[#C62828]",
   };
-  return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${map[value] ?? "bg-black/5 text-muted-foreground"}`}>{value}</span>;
+  return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${map[value] ?? "bg-black/5 text-muted-foreground"}`}>{String(value ?? "").replace(/_/g, " ")}</span>;
 }

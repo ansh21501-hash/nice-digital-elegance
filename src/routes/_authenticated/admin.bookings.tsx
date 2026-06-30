@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, X, CalendarCheck } from "lucide-react";
+import { Check, X, LogIn, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { PageTitle } from "@/components/admin/AdminShell";
 import { ResourceManager, StatusBadge, type Field, type Column } from "@/components/admin/ResourceManager";
@@ -17,7 +17,7 @@ const fields: Field[] = [
   { name: "check_out", label: "Check-out", type: "date" },
   { name: "guests", label: "Guests", type: "number", default: 1 },
   { name: "amount", label: "Amount (₹)", type: "number" },
-  { name: "status", label: "Status", type: "select", options: ["pending", "confirmed", "completed", "cancelled"], default: "pending" },
+  { name: "status", label: "Status", type: "select", options: ["pending", "confirmed", "checked_in", "checked_out", "completed", "cancelled"], default: "pending" },
   { name: "payment_status", label: "Payment", type: "select", options: ["unpaid", "paid", "refunded"], default: "unpaid" },
   { name: "source", label: "Source", type: "select", options: ["website", "walk-in", "phone", "online"], default: "website" },
   { name: "special_requests", label: "Special Requests", type: "textarea" },
@@ -45,12 +45,22 @@ function Bookings() {
       <ResourceManager
         table="bookings" fields={fields} columns={columns}
         searchKeys={["guest_name", "guest_email", "guest_phone", "room_type"]}
-        rowActions={(row, reload) => row.status === "pending" ? (
+        rowActions={(row, reload) => (
           <>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-[#2E7D32]" title="Confirm" onClick={() => quick(row.id, "confirmed", reload)}><Check className="h-4 w-4" /></Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-[#C62828]" title="Cancel" onClick={() => quick(row.id, "cancelled", reload)}><X className="h-4 w-4" /></Button>
+            {row.status === "pending" && (
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-[#2E7D32]" title="Confirm" onClick={() => quick(row.id, "confirmed", reload)}><Check className="h-4 w-4" /></Button>
+            )}
+            {(row.status === "confirmed" || row.status === "pending") && (
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-[#1565C0]" title="Check in" onClick={() => quick(row.id, "checked_in", reload)}><LogIn className="h-4 w-4" /></Button>
+            )}
+            {row.status === "checked_in" && (
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-[#6A1B9A]" title="Check out" onClick={() => quick(row.id, "checked_out", reload)}><LogOut className="h-4 w-4" /></Button>
+            )}
+            {row.status !== "cancelled" && row.status !== "checked_out" && row.status !== "completed" && (
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-[#C62828]" title="Cancel" onClick={() => quick(row.id, "cancelled", reload)}><X className="h-4 w-4" /></Button>
+            )}
           </>
-        ) : null}
+        )}
       />
     </div>
   );

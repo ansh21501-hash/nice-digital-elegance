@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { CalendarCheck, LogIn, LogOut, Clock, BedDouble, DoorOpen, IndianRupee, UtensilsCrossed, Star, MessageSquare } from "lucide-react";
+import { CalendarCheck, LogIn, LogOut, Clock, BedDouble, DoorOpen, IndianRupee, UtensilsCrossed, MessageSquare } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, CartesianGrid, BarChart, Bar } from "recharts";
 import { PageTitle } from "@/components/admin/AdminShell";
 import { StatusBadge } from "@/components/admin/ResourceManager";
@@ -26,7 +26,7 @@ function Dashboard() {
   const { data: bookings = [] } = useRows<any>("bookings");
   const { data: rooms = [] } = useRows<any>("rooms");
   const { data: enquiries = [] } = useRows<any>("enquiries");
-  const { data: reviews = [] } = useRows<any>("reviews");
+  const { data: menuItems = [] } = useRows<any>("menu_items");
   const today = todayStr();
 
   const stats = useMemo(() => {
@@ -68,7 +68,7 @@ function Dashboard() {
         <StatCard icon={DoorOpen} label="Available Rooms" value={stats.available} tone="#2E7D32" />
         <StatCard icon={BedDouble} label="Occupied Rooms" value={stats.occupied} tone="#C62828" />
         <StatCard icon={IndianRupee} label="Revenue (paid)" value={`₹${stats.revenue.toLocaleString("en-IN")}`} />
-        <StatCard icon={Star} label="Reviews" value={reviews.length} tone="#F9A825" />
+        <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tone="#F9A825" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">

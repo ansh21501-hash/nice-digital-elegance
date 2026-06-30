@@ -12,7 +12,7 @@ const fields: Field[] = [
   { name: "starts_at", label: "Starts", type: "date" },
   { name: "ends_at", label: "Expires", type: "date" },
   { name: "is_active", label: "Published", type: "boolean", default: true },
-  { name: "image_url", label: "Banner URL", type: "text", fullWidth: true },
+  { name: "image", label: "Banner Image", type: "image", fullWidth: true },
   { name: "description", label: "Description", type: "textarea" },
 ];
 const columns: Column[] = [

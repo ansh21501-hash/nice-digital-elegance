@@ -9,10 +9,8 @@ export const Route = createFileRoute("/_authenticated/admin/menu")({ component: 
 
 const categoryFields: Field[] = [
   { name: "name", label: "Category Name", type: "text", required: true },
-  { name: "slug", label: "Slug", type: "text" },
   { name: "sort_order", label: "Sort Order", type: "number", default: 0 },
   { name: "is_active", label: "Active", type: "boolean", default: true },
-  { name: "description", label: "Description", type: "textarea" },
 ];
 
 const categoryColumns: Column[] = [
@@ -28,19 +26,19 @@ function Menu() {
   const itemFields: Field[] = [
     { name: "name", label: "Dish Name", type: "text", required: true },
     { name: "category_id", label: "Category", type: "select", options: cats.map((c) => ({ value: c.id, label: c.name })) },
-    { name: "price", label: "Price (₹)", type: "number" },
-    { name: "veg", label: "Vegetarian", type: "boolean", default: true },
+    { name: "price", label: "Price (e.g. ₹120)", type: "text" },
+    { name: "is_veg", label: "Vegetarian", type: "boolean", default: true },
     { name: "is_available", label: "Available", type: "boolean", default: true },
-    { name: "badge", label: "Badge", type: "select", options: ["None", "Chef Special", "Popular", "New", "Spicy", "Best Seller"] },
+    { name: "badges", label: "Badges", type: "tags" },
     { name: "sort_order", label: "Sort Order", type: "number", default: 0 },
-    { name: "image_url", label: "Image URL", type: "text", fullWidth: true },
+    { name: "image", label: "Dish Image", type: "image", fullWidth: true },
     { name: "description", label: "Description", type: "textarea" },
   ];
   const itemColumns: Column[] = [
     { name: "name", label: "Dish", render: (r) => <div><p className="font-medium">{r.name}</p><p className="text-xs text-muted-foreground">{cats.find((c) => c.id === r.category_id)?.name || "—"}</p></div> },
-    { name: "price", label: "Price", render: (r) => r.price ? `₹${r.price}` : "—" },
-    { name: "veg", label: "Type", render: (r) => <span className={r.veg ? "text-[#2E7D32]" : "text-[#C62828]"}>{r.veg ? "Veg" : "Non-veg"}</span> },
-    { name: "badge", label: "Badge", render: (r) => r.badge ? <StatusBadge value={r.badge} /> : "—" },
+    { name: "price", label: "Price", render: (r) => r.price || "—" },
+    { name: "is_veg", label: "Type", render: (r) => <span className={r.is_veg ? "text-[#2E7D32]" : "text-[#C62828]"}>{r.is_veg ? "Veg" : "Non-veg"}</span> },
+    { name: "badges", label: "Badges", render: (r) => Array.isArray(r.badges) && r.badges.length ? <StatusBadge value={r.badges[0]} /> : "—" },
     { name: "is_available", label: "Available", render: (r) => r.is_available ? "Yes" : "No" },
   ];
 

@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminList, adminUpsert, adminDelete } from "@/lib/admin.functions";
+import { adminList, adminUpsert, adminDelete, adminUpload } from "@/lib/admin.functions";
 
 export type TableName =
   | "bookings"
@@ -8,11 +8,6 @@ export type TableName =
   | "menu_items"
   | "offers"
   | "enquiries"
-  | "reviews"
-  | "gallery"
-  | "profiles"
-  | "user_roles"
-  | "audit_logs"
   | "site_settings"
   | "services"
   | "events";
@@ -27,6 +22,9 @@ export function useRows<T = Record<string, unknown>>(
       const rows = await adminList({ data: { table, orderBy: opts?.orderBy, ascending: opts?.ascending } });
       return (rows ?? []) as T[];
     },
+    staleTime: 0,
+    refetchInterval: 12000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -49,4 +47,19 @@ export async function deleteRow(table: TableName, id: string) {
 
 export async function setStatus(table: TableName, id: string, patch: Record<string, unknown>) {
   await adminUpsert({ data: { table, values: patch, id } });
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function uploadImage(file: File): Promise<string> {
+  const base64 = await fileToBase64(file);
+  const res = await adminUpload({ data: { filename: file.name, contentType: file.type, base64 } });
+  return res.url;
 }

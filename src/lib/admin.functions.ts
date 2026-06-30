@@ -26,8 +26,7 @@ async function assertUnlocked() {
 
 const ALLOWED = new Set([
   "bookings", "rooms", "menu_categories", "menu_items", "offers",
-  "enquiries", "reviews", "gallery", "profiles", "user_roles", "audit_logs", "site_settings",
-  "services", "events",
+  "enquiries", "site_settings", "services", "events",
 ]);
 function table(t: string) {
   if (!ALLOWED.has(t)) throw new Error("Unknown table");
@@ -90,6 +89,59 @@ export const adminDelete = createServerFn({ method: "POST" })
     await assertUnlocked();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await (supabaseAdmin as any).from(table(data.table)).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminUpload = createServerFn({ method: "POST" })
+  .inputValidator((d: { filename: string; contentType: string; base64: string }) => d)
+  .handler(async ({ data }) => {
+    await assertUnlocked();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ext = (data.filename.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const bytes = Buffer.from(data.base64, "base64");
+    const { error } = await (supabaseAdmin as any).storage
+      .from("site-images")
+      .upload(path, bytes, { contentType: data.contentType || "image/jpeg", upsert: true });
+    if (error) throw new Error(error.message);
+    const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+    const { data: signed, error: signErr } = await (supabaseAdmin as any).storage
+      .from("site-images")
+      .createSignedUrl(path, TEN_YEARS);
+    if (signErr) throw new Error(signErr.message);
+    return { url: signed.signedUrl as string };
+  });
+
+type CmsBlock = { label?: string; type?: "text" | "image"; value?: string };
+
+export const adminSettingsList = createServerFn({ method: "GET" }).handler(async () => {
+  await assertUnlocked();
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await (supabaseAdmin as any).from("site_settings").select("*").order("key", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as { key: string; value: CmsBlock }[];
+});
+
+export const adminSettingSave = createServerFn({ method: "POST" })
+  .inputValidator((d: { key: string; value: CmsBlock }) => d)
+  .handler(async ({ data }) => {
+    await assertUnlocked();
+    if (!data.key) throw new Error("Key is required");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin as any)
+      .from("site_settings")
+      .upsert({ key: data.key, value: data.value, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminSettingDelete = createServerFn({ method: "POST" })
+  .inputValidator((d: { key: string }) => d)
+  .handler(async ({ data }) => {
+    await assertUnlocked();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin as any).from("site_settings").delete().eq("key", data.key);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

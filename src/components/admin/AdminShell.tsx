@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, CalendarCheck, BedDouble, UtensilsCrossed, Tag, MessageSquare,
-  Star, Images, Users, Settings, ScrollText, LogOut, Menu as MenuIcon, X, Hotel, Search,
+  LogOut, Menu as MenuIcon, X, Hotel, Search, FileText,
   ConciergeBell, PartyPopper,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,15 +25,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
   { section: "Restaurant", items: [
     { to: "/admin/menu", label: "Menu Builder", icon: UtensilsCrossed },
     { to: "/admin/offers", label: "Offers", icon: Tag },
-  ]},
-  { section: "Content", items: [
-    { to: "/admin/reviews", label: "Reviews", icon: Star },
-    { to: "/admin/gallery", label: "Gallery", icon: Images },
-    { to: "/admin/settings", label: "Site Settings", icon: Settings },
-  ]},
-  { section: "Administration", items: [
-    { to: "/admin/staff", label: "Staff & Roles", icon: Users },
-    { to: "/admin/audit", label: "Audit Logs", icon: ScrollText },
+    { to: "/admin/cms", label: "Site CMS", icon: FileText },
   ]},
 ];
 

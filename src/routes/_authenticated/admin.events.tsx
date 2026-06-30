@@ -16,7 +16,7 @@ const fields: Field[] = [
   { name: "sort_order", label: "Display Order", type: "number", default: 0 },
   { name: "coming_soon", label: "Coming Soon", type: "boolean", default: false },
   { name: "is_active", label: "Published", type: "boolean", default: true },
-  { name: "image", label: "Image URL", type: "text", fullWidth: true },
+  { name: "image", label: "Image", type: "image", fullWidth: true },
   { name: "description", label: "Description", type: "textarea", fullWidth: true },
 ];
 const columns: Column[] = [
