@@ -26,7 +26,7 @@ async function assertUnlocked() {
 
 const ALLOWED = new Set([
   "bookings", "rooms", "menu_categories", "menu_items", "offers",
-  "enquiries", "site_settings", "services", "events",
+  "enquiries", "site_settings", "services", "events", "email_logs",
 ]);
 function table(t: string) {
   if (!ALLOWED.has(t)) throw new Error("Unknown table");
@@ -144,4 +144,29 @@ export const adminSettingDelete = createServerFn({ method: "POST" })
     const { error } = await (supabaseAdmin as any).from("site_settings").delete().eq("key", data.key);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const adminResendEmail = createServerFn({ method: "POST" })
+  .inputValidator((d: { id: string }) => d)
+  .handler(async ({ data }) => {
+    await assertUnlocked();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: log, error } = await (supabaseAdmin as any)
+      .from("email_logs").select("*").eq("id", data.id).single();
+    if (error) throw new Error(error.message);
+    if (!log) throw new Error("Email log not found");
+
+    const { sendEmail } = await import("./email.server");
+    const { renderEmail } = await import("./email-templates");
+    const payload = (log.payload ?? {}) as any;
+    const type = payload.type || log.type || "generic";
+    const rendered = renderEmail(type, payload.data ?? {});
+    const ok = await sendEmail({
+      to: log.recipient,
+      subject: payload.subject || log.subject || rendered.subject,
+      html: rendered.html,
+      type,
+      payload,
+    });
+    return { ok };
   });

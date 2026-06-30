@@ -10,7 +10,8 @@ export type TableName =
   | "enquiries"
   | "site_settings"
   | "services"
-  | "events";
+  | "events"
+  | "email_logs";
 
 export function useRows<T = Record<string, unknown>>(
   table: TableName,
