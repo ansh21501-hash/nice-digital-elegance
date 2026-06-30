@@ -6,6 +6,7 @@ import menuData from "@/data/menu.json";
 import { site, type MenuCategory } from "@/data/content";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHeader, CtaBand } from "@/components/site/ui";
+import { TiltCard } from "@/components/site/TiltCard";
 
 const categories = menuData as MenuCategory[];
 
@@ -95,14 +96,14 @@ function Menu() {
         {visible.length === 0 && <p className="py-20 text-center text-muted-foreground">No dishes match your search.</p>}
         <div className="space-y-16">
           {visible.map((cat) => (
-            <div key={cat.category} id={cat.category}>
-              <Reveal>
-                <div className="mb-8 flex items-end justify-between border-b border-border pb-4">
-                  <h2 className="font-display text-3xl text-charcoal md:text-4xl">{cat.category}</h2>
-                  <span className="text-xs uppercase tracking-[0.2em] text-gold">{cat.items.length} dishes</span>
-                </div>
-              </Reveal>
-              <div className="grid grid-cols-1 gap-x-12 gap-y-5 md:grid-cols-2">
+            <Reveal key={cat.category}>
+            <TiltCard max={4} className="group">
+            <div id={cat.category} className="rounded-2xl border border-border/70 bg-card/90 p-7 shadow-card md:p-10" style={{ transformStyle: "preserve-3d" }}>
+              <div className="mb-8 flex items-end justify-between border-b border-border pb-4" style={{ transform: "translateZ(40px)" }}>
+                <h2 className="font-display text-3xl text-charcoal md:text-4xl">{cat.category}</h2>
+                <span className="text-xs uppercase tracking-[0.2em] text-gold">{cat.items.length} dishes</span>
+              </div>
+              <div className="grid grid-cols-1 gap-x-12 gap-y-5 md:grid-cols-2" style={{ transform: "translateZ(20px)" }}>
                 {cat.items.map((it, i) => {
                   const nv = isNonVeg(it.name, cat.category);
                   return (
@@ -121,6 +122,8 @@ function Menu() {
                 })}
               </div>
             </div>
+            </TiltCard>
+            </Reveal>
           ))}
         </div>
         <Reveal className="mt-16 rounded-2xl bg-beige p-7 text-center text-sm text-brown">
