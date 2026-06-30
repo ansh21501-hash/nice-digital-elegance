@@ -42,12 +42,31 @@ export const sendBookingEmail = createServerFn({ method: "POST" })
 export const sendContactEmail = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => contactSchema.parse(d))
   .handler(async ({ data }) => {
-    const { sendEmails, adminEmail } = await import("./email.server");
-    const t = await import("./email-templates");
-    await sendEmails([
-      { to: data.email, subject: "We received your message — Nice Hotel & Restaurant", html: t.contactGuestEmail(data) },
-      { to: adminEmail(), subject: `New contact enquiry: ${data.name}`, html: t.contactAdminEmail(data), reply: data.email },
-    ]);
+    // 1) Persist the enquiry first so a message is never lost, even if email fails.
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as any).from("enquiries").insert({
+        name: data.name,
+        email: data.email,
+        phone: data.phone ?? null,
+        message: data.message,
+        status: "pending",
+        source: "website",
+      });
+    } catch (e) {
+      console.error("Enquiry save error", e);
+    }
+    // 2) Send notification emails (best-effort — failure must not break the flow).
+    try {
+      const { sendEmails, adminEmail } = await import("./email.server");
+      const t = await import("./email-templates");
+      await sendEmails([
+        { to: data.email, subject: "We received your message — Nice Hotel & Restaurant", html: t.contactGuestEmail(data) },
+        { to: adminEmail(), subject: `New contact enquiry: ${data.name}`, html: t.contactAdminEmail(data), reply: data.email },
+      ]);
+    } catch (e) {
+      console.error("Contact email error", e);
+    }
     return { ok: true };
   });
 
