@@ -166,16 +166,21 @@ function BookPage() {
         modal: { ondismiss: () => setPaying(false) },
         handler: async (resp: any) => {
           try {
+            const { data: sess } = await supabase.auth.getSession();
+            const accessToken = sess.session?.access_token;
             const vr = await fetch("/api/public/razorpay/verify", {
               method: "POST",
-              headers: { "content-type": "application/json" },
+              headers: {
+                "content-type": "application/json",
+                ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+              },
               body: JSON.stringify({
                 razorpay_order_id: resp.razorpay_order_id,
                 razorpay_payment_id: resp.razorpay_payment_id,
                 razorpay_signature: resp.razorpay_signature,
                 roomId: room.id, checkIn, checkOut, guests,
                 guestName: name, guestEmail: user.email, guestPhone: phone,
-                specialRequests: requests || undefined, userId: user.id,
+                specialRequests: requests || undefined,
               }),
             });
             const v = await vr.json();
