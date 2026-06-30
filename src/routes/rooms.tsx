@@ -98,12 +98,20 @@ function Rooms() {
       <PageHeader eyebrow="Accommodations" title="Luxury Rooms & Suites" sub="Experience elegance and comfort in our premium accommodations" image={site.images.deluxe} />
 
       <section className="container-luxe space-y-12 py-24">
-        {list.map((r, i) => (
+        {list.map((r, i) => {
+          const avail = availByRoom.get(r.slug) as { available: number; total: number } | undefined;
+          const soldOut = avail ? avail.available <= 0 : false;
+          return (
           <Reveal key={r.slug} delay={i * 0.05}>
             <div className={`grid grid-cols-1 overflow-hidden rounded-2xl bg-card shadow-luxe lg:grid-cols-2 ${i % 2 ? "lg:[direction:rtl]" : ""}`}>
               <div className="relative h-72 overflow-hidden lg:h-auto [direction:ltr]">
                 <img src={r.image} alt={r.name} className="h-full w-full object-cover transition duration-700 hover:scale-105" loading="lazy" />
                 <span className="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-xs uppercase tracking-wider text-ivory">{r.badge}</span>
+                {avail && (
+                  <span className={`absolute right-4 top-4 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider ${soldOut ? "bg-charcoal/80 text-ivory" : "bg-emerald-600 text-ivory"}`}>
+                    {soldOut ? "Fully Booked" : `${avail.available} of ${avail.total} available`}
+                  </span>
+                )}
               </div>
               <div className="p-8 lg:p-12 [direction:ltr]">
                 <div className="flex items-center gap-2 text-sm">
@@ -124,12 +132,13 @@ function Rooms() {
                 </div>
                 <div className="mt-8 flex items-end justify-between">
                   <p className="font-display text-3xl text-gold">₹{r.price}<span className="text-sm text-muted-foreground">/night</span></p>
-                  <button onClick={() => open(r.name)} aria-label={`Book ${r.name}`} className="rounded-full bg-charcoal px-7 py-3 text-xs font-medium uppercase tracking-[0.2em] text-ivory transition hover:bg-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">Book Now</button>
+                  <button onClick={() => open(r.name)} disabled={soldOut} aria-label={`Book ${r.name}`} className="rounded-full bg-charcoal px-7 py-3 text-xs font-medium uppercase tracking-[0.2em] text-ivory transition hover:bg-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-charcoal">{soldOut ? "Fully Booked" : "Book Now"}</button>
                 </div>
               </div>
             </div>
           </Reveal>
-        ))}
+          );
+        })}
       </section>
 
       <section className="bg-beige py-24">
