@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Reveal } from "./Reveal";
 import { useBooking } from "./booking";
+import { AppImage } from "./AppImage";
 
 export function LuxeButton({
   children, variant = "solid", onClick, type,
@@ -28,10 +29,10 @@ export function SectionHeading({
   );
 }
 
-export function PageHeader({ eyebrow, title, sub, image }: { eyebrow: string; title: string; sub: string; image: string }) {
+export function PageHeader({ eyebrow, title, sub, image }: { eyebrow: string; title: string; sub: string; image: unknown }) {
   return (
     <section className="relative flex min-h-[58vh] items-end overflow-hidden">
-      <img src={image} alt={title} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
+      <AppImage src={image} alt={title} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
       <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/45 to-charcoal/30" />
       <div className="container-luxe relative z-10 pb-16 pt-32">
         <Reveal>
@@ -45,11 +46,11 @@ export function PageHeader({ eyebrow, title, sub, image }: { eyebrow: string; ti
   );
 }
 
-export function CtaBand({ title, sub, image }: { title: string; sub: string; image: string }) {
+export function CtaBand({ title, sub, image }: { title: string; sub: string; image: unknown }) {
   const { open } = useBooking();
   return (
     <section className="relative overflow-hidden py-28">
-      <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+      <AppImage src={image} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
       <div className="absolute inset-0 bg-charcoal/80" />
       <div className="container-luxe relative z-10 text-center">
         <Reveal>
