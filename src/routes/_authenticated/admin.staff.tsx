@@ -6,7 +6,7 @@ import { useAdminAuth } from "@/lib/admin/auth";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({ component: Staff });
 
-const ROLES = ["super_admin", "hotel_manager", "restaurant_manager", "event_manager", "reception_staff", "content_manager", "accountant", "support_staff"];
+const ROLES = ["super_admin", "hotel_manager", "restaurant_manager", "event_manager", "reception", "content_manager", "accountant", "support"];
 
 function Staff() {
   const { isSuperAdmin } = useAdminAuth();
