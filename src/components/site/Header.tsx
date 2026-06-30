@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { nav, site } from "@/data/content";
-import logo from "@/assets/nice-logo.png.asset.json";
+import logo from "@/assets/nice-logo.png";
 import { useBooking } from "./booking";
 
 export function Header() {
@@ -32,7 +32,7 @@ export function Header() {
       >
         <div className="container-luxe flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3" aria-label={site.name}>
-            <img src={logo.url} alt={`${site.name} logo`} className="h-11 w-11 rounded-full object-contain" />
+            <img src={logo} alt={`${site.name} logo`} className="h-11 w-11 rounded-full object-contain" />
             <span className="hidden sm:block leading-tight">
               <span className={`block font-display text-lg ${textColor}`}>The Nice</span>
               <span className={`block text-[0.6rem] uppercase tracking-[0.3em] ${solid ? "text-gold" : "text-gold-soft"}`}>

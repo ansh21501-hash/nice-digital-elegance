@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { adminLogout } from "@/lib/admin.functions";
-import logo from "@/assets/nice-logo.png.asset.json";
+import logo from "@/assets/nice-logo.png";
 
 interface NavItem { to: string; label: string; icon: typeof LayoutDashboard; roles?: string[]; }
 
@@ -50,7 +50,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-[#161616] text-white/80 transition-transform duration-300 lg:translate-x-0 ${openMobile ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center gap-2.5 border-b border-white/5 px-5">
-          <img src={logo.url} alt="Nice Hotel" className="h-8 w-8 rounded-md object-contain" />
+          <img src={logo} alt="Nice Hotel" className="h-8 w-8 rounded-md object-contain" />
           <div className="leading-tight">
             <p className="font-display text-base text-white">Nice Hotel</p>
             <p className="text-[10px] uppercase tracking-[0.2em] text-[#B98A3E]">Admin Suite</p>

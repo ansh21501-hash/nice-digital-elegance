@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Hotel } from "lucide-react";
-import logo from "@/assets/nice-logo.png.asset.json";
+import logo from "@/assets/nice-logo.png";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -59,7 +59,7 @@ function AuthPage() {
       <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, #B98A3E 0, transparent 45%)" }} />
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl shadow-2xl">
         <div className="mb-7 text-center">
-          <img src={logo.url} alt="Nice Hotel" className="mx-auto h-14 w-14 rounded-xl object-contain" />
+          <img src={logo} alt="Nice Hotel" className="mx-auto h-14 w-14 rounded-xl object-contain" />
           <h1 className="mt-4 font-display text-2xl text-white">Nice Hotel Admin</h1>
           <p className="mt-1 text-xs uppercase tracking-[0.25em] text-[#B98A3E]">
             {mode === "signin" ? "Sign in to your suite" : mode === "signup" ? "Create your account" : "Reset password"}

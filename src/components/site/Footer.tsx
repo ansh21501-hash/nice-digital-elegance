@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, MessageCircle, MapPin, Phone, Mail, Clock } from "lucide-react";
 import { nav, site } from "@/data/content";
-import logo from "@/assets/nice-logo.png.asset.json";
+import logo from "@/assets/nice-logo.png";
 
 export function Footer() {
   return (
@@ -9,7 +9,7 @@ export function Footer() {
       <div className="container-luxe grid grid-cols-1 gap-12 py-16 md:grid-cols-4">
         <div className="md:col-span-1">
           <div className="flex items-center gap-3">
-            <img src={logo.url} alt={`${site.name} logo`} className="h-12 w-12 rounded-full object-contain" />
+            <img src={logo} alt={`${site.name} logo`} className="h-12 w-12 rounded-full object-contain" />
             <span className="font-display text-2xl text-ivory">The Nice</span>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-ivory/60">{site.tagline}</p>

@@ -5,7 +5,7 @@ import { adminStatus, adminUnlock } from "@/lib/admin.functions";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/nice-logo.png.asset.json";
+import logo from "@/assets/nice-logo.png";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: Gate });
 
@@ -47,7 +47,7 @@ function Gate() {
       <div className="flex min-h-screen items-center justify-center bg-[#161616] px-4">
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, #B98A3E 0, transparent 45%)" }} />
         <form onSubmit={submit} className="relative w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur-xl shadow-2xl">
-          <img src={logo.url} alt="Nice Hotel" className="mx-auto h-14 w-14 rounded-xl object-contain" />
+          <img src={logo} alt="Nice Hotel" className="mx-auto h-14 w-14 rounded-xl object-contain" />
           <h1 className="mt-4 font-display text-2xl text-white">Admin Panel</h1>
           <p className="mt-1 text-xs uppercase tracking-[0.25em] text-[#B98A3E]">Restricted Access</p>
           <div className="mt-6 text-left">
