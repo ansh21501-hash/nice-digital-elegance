@@ -7,6 +7,7 @@ import {
 import { Reveal } from "@/components/site/Reveal";
 import { Icon } from "@/components/site/Icon";
 import { PageHeader, SectionHeading, CtaBand, LuxeButton } from "@/components/site/ui";
+import { breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/about")({
       { name: "twitter:image", content: site.images.executive },
     ],
     links: [{ rel: "canonical", href: "/about" }],
+    scripts: [breadcrumbLd([{ name: "Home", path: "/" }, { name: "About", path: "/about" }])],
   }),
   component: About,
 });
