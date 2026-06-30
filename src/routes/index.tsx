@@ -7,6 +7,7 @@ import {
 import { Reveal } from "@/components/site/Reveal";
 import { Icon } from "@/components/site/Icon";
 import { LuxeButton, SectionHeading, CtaBand } from "@/components/site/ui";
+import { TiltCard } from "@/components/site/TiltCard";
 import { useBooking } from "@/components/site/booking";
 
 export const Route = createFileRoute("/")({
@@ -55,7 +56,7 @@ function Home() {
       {/* HERO */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
         <motion.img
-          src={site.images.dining} alt="Nice Hotel And Restaurant fine dining"
+          src={site.images.executive} alt="Nice Hotel And Restaurant — luxury executive room"
           className="absolute inset-0 h-full w-full object-cover"
           initial={{ scale: 1.15 }} animate={{ scale: 1 }} transition={{ duration: 6, ease: "easeOut" }}
           loading="eager"
