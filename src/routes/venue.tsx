@@ -6,8 +6,22 @@ import { Icon } from "@/components/site/Icon";
 import { PageHeader, SectionHeading, CtaBand } from "@/components/site/ui";
 import { useBooking } from "@/components/site/booking";
 import { breadcrumbLd } from "@/lib/seo";
+import { getEvents } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/venue")({
+  loader: async () => {
+    try {
+      return { dbEvents: await getEvents() };
+    } catch {
+      return { dbEvents: [] as Awaited<ReturnType<typeof getEvents>> };
+    }
+  },
+  errorComponent: () => (
+    <div className="container-luxe py-32 text-center">
+      <h1 className="font-display text-3xl text-charcoal">Venues are loading slowly</h1>
+      <p className="mt-3 text-muted-foreground">Please refresh the page.</p>
+    </div>
+  ),
   head: () => ({
     meta: [
       { title: "Party & Event Halls — Nice Hotel And Restaurant, Mansa" },
@@ -25,12 +39,29 @@ export const Route = createFileRoute("/venue")({
 
 function Venue() {
   const { open } = useBooking();
+  const { dbEvents } = Route.useLoaderData();
+  const venueList = dbEvents.length
+    ? dbEvents.map((v: any) => ({
+        slug: v.id as string,
+        name: v.name as string,
+        sub: (v.subtitle as string) ?? "",
+        badge: (v.badge as string) ?? "",
+        rating: 4.8,
+        capacity: (v.capacity as string) ?? "",
+        size: (v.size as string) ?? "",
+        floor: (v.floor as string) ?? "",
+        image: (v.image as string) || site.images.hall,
+        comingSoon: Boolean(v.coming_soon),
+        description: (v.description as string) ?? "",
+        amenities: Array.isArray(v.amenities) ? (v.amenities as string[]) : [],
+      }))
+    : venues;
   return (
     <>
       <PageHeader eyebrow="Events" title="Party & Event Halls" sub="Elegant venues for your special occasions" image={site.images.hall} />
 
       <section className="container-luxe grid grid-cols-1 gap-8 py-24 lg:grid-cols-3">
-        {venues.map((v, i) => (
+        {venueList.map((v, i) => (
           <Reveal key={v.slug} delay={i * 0.1}>
             <div className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card shadow-card transition hover:shadow-luxe">
               <div className="relative h-56 overflow-hidden">
