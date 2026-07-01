@@ -123,7 +123,7 @@ function BookPage() {
     if (lines.length || !roomTypes.length) return;
     const m = roomParam ? roomTypes.find((r) => r.name.toLowerCase() === roomParam.toLowerCase()) : null;
     const first = m ?? roomTypes[0];
-    setLines([{ key: newKey(), roomId: first.id, quantity: 1, adults: 2, children: 0, extraBed: false, notes: "" }]);
+    setLines([{ key: newKey(), roomId: first.id, quantity: 0, adults: 2, children: 0, extraBed: false, notes: "" }]);
   }, [roomParam, roomTypes, lines.length]);
 
   const nights = nightsBetween(checkIn, checkOut);
@@ -171,7 +171,7 @@ function BookPage() {
   const addLine = () => {
     const first = roomTypes[0];
     if (!first) return;
-    setLines((ls) => [...ls, { key: newKey(), roomId: first.id, quantity: 1, adults: 2, children: 0, extraBed: false, notes: "" }]);
+    setLines((ls) => [...ls, { key: newKey(), roomId: first.id, quantity: 0, adults: 2, children: 0, extraBed: false, notes: "" }]);
   };
 
   const auth = async (e: React.FormEvent) => {
@@ -196,6 +196,7 @@ function BookPage() {
 
   const validateRooms = (): string | null => {
     if (!lines.length) return "Please add at least one room";
+    if (totalRooms < 1) return "Please select at least one room (set the number of rooms above 0)";
     for (const l of lines) {
       const a = availFor(l.roomId);
       if (a && l.quantity > a.available) {
