@@ -2,8 +2,16 @@ import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
 export function Reveal({
-  children, delay = 0, y = 28, className,
-}: { children: ReactNode; delay?: number; y?: number; className?: string }) {
+  children,
+  delay = 0,
+  y = 28,
+  className,
+}: {
+  children: ReactNode;
+  delay?: number;
+  y?: number;
+  className?: string;
+}) {
   return (
     <motion.div
       className={className}

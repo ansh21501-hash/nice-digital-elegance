@@ -4,20 +4,29 @@ import { toast } from "sonner";
 import { uploadImage } from "@/lib/admin/data";
 import { Button } from "@/components/ui/button";
 
-export function ImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+export function ImageUpload({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
   const pick = async (file?: File) => {
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Please choose an image file"); return; }
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
     setBusy(true);
     try {
       const url = await uploadImage(file);
       onChange(url);
       toast.success("Image uploaded");
-    } catch (e: any) {
-      toast.error(e.message ?? "Upload failed");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setBusy(false);
     }
@@ -34,7 +43,11 @@ export function ImageUpload({ value, onChange }: { value: string; onChange: (url
       />
       {value ? (
         <div className="relative">
-          <img src={value} alt="preview" className="h-16 w-24 rounded-lg border border-black/10 object-cover" />
+          <img
+            src={value}
+            alt="preview"
+            className="h-16 w-24 rounded-lg border border-black/10 object-cover"
+          />
           <button
             type="button"
             onClick={() => onChange("")}
@@ -48,8 +61,18 @@ export function ImageUpload({ value, onChange }: { value: string; onChange: (url
           No image
         </div>
       )}
-      <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => inputRef.current?.click()}>
-        {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Upload className="mr-1.5 h-4 w-4" />}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {busy ? (
+          <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="mr-1.5 h-4 w-4" />
+        )}
         {value ? "Replace" : "Upload"}
       </Button>
     </div>

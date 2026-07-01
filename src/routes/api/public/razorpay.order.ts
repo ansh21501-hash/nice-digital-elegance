@@ -29,22 +29,40 @@ export const Route = createFileRoute("/api/public/razorpay/order")({
         }
         const { keyId, keySecret } = creds;
         let body: unknown;
-        try { body = await request.json(); } catch { return Response.json({ error: "Invalid body" }, { status: 400 }); }
+        try {
+          body = await request.json();
+        } catch {
+          return Response.json({ error: "Invalid body" }, { status: 400 });
+        }
         const parsed = schema.safeParse(body);
         if (!parsed.success) return Response.json({ error: "Invalid input" }, { status: 400 });
         const { checkIn, checkOut } = parsed.data;
-        const items = parsed.data.items ?? (parsed.data.roomId
-          ? [{ roomId: parsed.data.roomId, quantity: 1, adults: 1, children: 0, extraBed: false }]
-          : null);
+        const items =
+          parsed.data.items ??
+          (parsed.data.roomId
+            ? [{ roomId: parsed.data.roomId, quantity: 1, adults: 1, children: 0, extraBed: false }]
+            : null);
         if (!items) return Response.json({ error: "No rooms selected" }, { status: 400 });
 
         const { computeMultiQuote, assertMultiAvailable } = await import("@/lib/booking.server");
         let quote;
-        try { quote = await computeMultiQuote(items as any, checkIn, checkOut); }
-        catch (e: any) { return Response.json({ error: e?.message ?? "Quote failed" }, { status: 400 }); }
+        try {
+          quote = await computeMultiQuote(items, checkIn, checkOut);
+        } catch (e: unknown) {
+          return Response.json(
+            { error: e instanceof Error ? e.message : "Quote failed" },
+            { status: 400 },
+          );
+        }
 
-        try { await assertMultiAvailable(items as any, checkIn, checkOut); }
-        catch (e: any) { return Response.json({ error: e?.message ?? "Not available" }, { status: 409 }); }
+        try {
+          await assertMultiAvailable(items, checkIn, checkOut);
+        } catch (e: unknown) {
+          return Response.json(
+            { error: e instanceof Error ? e.message : "Not available" },
+            { status: 409 },
+          );
+        }
 
         const amountPaise = Math.round(quote.grandTotal * 100);
         const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
@@ -64,9 +82,10 @@ export const Route = createFileRoute("/api/public/razorpay/order")({
           return Response.json({ error: "Could not create payment order" }, { status: 502 });
         }
         const order = await res.json();
-        const roomName = quote.lines.length === 1
-          ? `${quote.lines[0].room.name}${quote.lines[0].quantity > 1 ? ` ×${quote.lines[0].quantity}` : ""}`
-          : `${quote.lines.reduce((s, l) => s + l.quantity, 0)} rooms`;
+        const roomName =
+          quote.lines.length === 1
+            ? `${quote.lines[0].room.name}${quote.lines[0].quantity > 1 ? ` ×${quote.lines[0].quantity}` : ""}`
+            : `${quote.lines.reduce((s, l) => s + l.quantity, 0)} rooms`;
         return Response.json({
           orderId: order.id,
           amount: amountPaise,

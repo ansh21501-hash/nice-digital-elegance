@@ -11,7 +11,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { OffersPopup } from "@/components/site/OffersPopup";
@@ -43,9 +42,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -84,23 +80,43 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Nice Hotel And Restaurant in Mansa — Best Hotel, Stay & Restaurant" },
-      { name: "description", content: "Looking for a hotel, stay or restaurant in Mansa, Punjab? Nice Hotel And Restaurant offers luxury rooms, fine dining and elegant event venues. Book your stay online." },
-      { name: "keywords", content: "hotel in Mansa, restaurant in Mansa, stay in Mansa, best hotel Mansa Punjab, luxury hotel Mansa, rooms in Mansa, Mansa restaurant, banquet hall Mansa, Nice Hotel And Restaurant" },
+      {
+        name: "description",
+        content:
+          "Looking for a hotel, stay or restaurant in Mansa, Punjab? Nice Hotel And Restaurant offers luxury rooms, fine dining and elegant event venues. Book your stay online.",
+      },
+      {
+        name: "keywords",
+        content:
+          "hotel in Mansa, restaurant in Mansa, stay in Mansa, best hotel Mansa Punjab, luxury hotel Mansa, rooms in Mansa, Mansa restaurant, banquet hall Mansa, Nice Hotel And Restaurant",
+      },
       { name: "author", content: "Nice Hotel And Restaurant" },
       { name: "geo.region", content: "IN-PB" },
       { name: "geo.placename", content: "Mansa, Punjab" },
       { name: "geo.position", content: "29.9988;75.3933" },
       { name: "ICBM", content: "29.9988, 75.3933" },
-      { property: "og:title", content: "Nice Hotel And Restaurant in Mansa — Best Hotel, Stay & Restaurant" },
-      { property: "og:description", content: "Luxury rooms, fine dining and elegant event venues in Mansa, Punjab. Book your stay at Nice Hotel And Restaurant online." },
+      {
+        property: "og:title",
+        content: "Nice Hotel And Restaurant in Mansa — Best Hotel, Stay & Restaurant",
+      },
+      {
+        property: "og:description",
+        content:
+          "Luxury rooms, fine dining and elegant event venues in Mansa, Punjab. Book your stay at Nice Hotel And Restaurant online.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Nice Hotel And Restaurant" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Nice Hotel And Restaurant in Mansa — Best Hotel, Stay & Restaurant" },
-      { name: "twitter:description", content: "Luxury rooms, fine dining and elegant event venues in Mansa, Punjab. Book your stay online." },
+      {
+        name: "twitter:title",
+        content: "Nice Hotel And Restaurant in Mansa — Best Hotel, Stay & Restaurant",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Luxury rooms, fine dining and elegant event venues in Mansa, Punjab. Book your stay online.",
+      },
       { name: "robots", content: "index, follow" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b55bbedf-cf74-435f-aa22-aa3bf59d3cc0/id-preview-f6b2f266--3c9f6921-e98b-43a2-9494-43b0e0a89b83.lovable.app-1782816871375.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b55bbedf-cf74-435f-aa22-aa3bf59d3cc0/id-preview-f6b2f266--3c9f6921-e98b-43a2-9494-43b0e0a89b83.lovable.app-1782816871375.png" },
     ],
     links: [
       {
@@ -120,7 +136,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@type": "Hotel",
           name: "Nice Hotel And Restaurant",
           url: "https://www.nicehotelandrestaurant.online/",
-          address: { "@type": "PostalAddress", streetAddress: "Near Chugli Ghar", addressLocality: "Mansa", addressRegion: "Punjab", postalCode: "151505", addressCountry: "IN" },
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "Near Chugli Ghar",
+            addressLocality: "Mansa",
+            addressRegion: "Punjab",
+            postalCode: "151505",
+            addressCountry: "IN",
+          },
           telephone: "+91 9216400005",
           email: "nicehotelandrestaurant@gmail.com",
           priceRange: "₹₹",
@@ -155,7 +178,8 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAdmin = pathname.startsWith("/admin") || pathname === "/auth" || pathname === "/reset-password";
+  const isAdmin =
+    pathname.startsWith("/admin") || pathname === "/auth" || pathname === "/reset-password";
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -51,8 +51,21 @@ export const sendBookingEmail = createServerFn({ method: "POST" })
       link: "/admin/bookings",
     });
     await sendEmails([
-      { to: data.email, subject: "Your reservation request — Nice Hotel & Restaurant", html: t.bookingGuestEmail(data), type: "booking_confirmation", payload: { type: "booking_confirmation", to: data.email, data } },
-      { to: adminEmail(), subject: `New booking: ${data.name}`, html: t.bookingAdminEmail(data), reply: data.email, type: "admin_alert", payload: { type: "admin_alert", to: adminEmail(), data } },
+      {
+        to: data.email,
+        subject: "Your reservation request — Nice Hotel & Restaurant",
+        html: t.bookingGuestEmail(data),
+        type: "booking_confirmation",
+        payload: { type: "booking_confirmation", to: data.email, data },
+      },
+      {
+        to: adminEmail(),
+        subject: `New booking: ${data.name}`,
+        html: t.bookingAdminEmail(data),
+        reply: data.email,
+        type: "admin_alert",
+        payload: { type: "admin_alert", to: adminEmail(), data },
+      },
     ]);
     return { ok: true };
   });
@@ -63,7 +76,7 @@ export const sendContactEmail = createServerFn({ method: "POST" })
     // 1) Persist the enquiry first so a message is never lost, even if email fails.
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await (supabaseAdmin as any).from("enquiries").insert({
+      await supabaseAdmin.from("enquiries").insert({
         name: data.name,
         email: data.email,
         phone: data.phone ?? null,
@@ -82,14 +95,28 @@ export const sendContactEmail = createServerFn({ method: "POST" })
         body: data.message.slice(0, 140),
         link: "/admin/enquiries",
       });
-    } catch (e) { console.error("notify error", e); }
+    } catch (e) {
+      console.error("notify error", e);
+    }
     // 2) Send notification emails (best-effort — failure must not break the flow).
     try {
       const { sendEmails, adminEmail } = await import("./email.server");
       const t = await import("./email-templates");
       await sendEmails([
-        { to: data.email, subject: "We received your message — Nice Hotel & Restaurant", html: t.contactGuestEmail(data), type: "contact", payload: { type: "contact", to: data.email, data } },
-        { to: adminEmail(), subject: `New contact enquiry: ${data.name}`, html: t.contactAdminEmail(data), reply: data.email, type: "admin_alert" },
+        {
+          to: data.email,
+          subject: "We received your message — Nice Hotel & Restaurant",
+          html: t.contactGuestEmail(data),
+          type: "contact",
+          payload: { type: "contact", to: data.email, data },
+        },
+        {
+          to: adminEmail(),
+          subject: `New contact enquiry: ${data.name}`,
+          html: t.contactAdminEmail(data),
+          reply: data.email,
+          type: "admin_alert",
+        },
       ]);
     } catch (e) {
       console.error("Contact email error", e);
@@ -110,8 +137,20 @@ export const sendPaymentReceiptEmail = createServerFn({ method: "POST" })
       link: "/admin/bookings",
     });
     await sendEmails([
-      { to: data.email, subject: "Payment receipt — Nice Hotel & Restaurant", html: t.paymentReceiptEmail(data), type: "payment", payload: { type: "payment", to: data.email, data } },
-      { to: adminEmail(), subject: `Payment received: ${data.name}`, html: t.paymentAdminEmail(data), reply: data.email, type: "admin_alert" },
+      {
+        to: data.email,
+        subject: "Payment receipt — Nice Hotel & Restaurant",
+        html: t.paymentReceiptEmail(data),
+        type: "payment",
+        payload: { type: "payment", to: data.email, data },
+      },
+      {
+        to: adminEmail(),
+        subject: `Payment received: ${data.name}`,
+        html: t.paymentAdminEmail(data),
+        reply: data.email,
+        type: "admin_alert",
+      },
     ]);
     return { ok: true };
   });
@@ -125,12 +164,14 @@ export const sendVenueEnquiry = createServerFn({ method: "POST" })
       `Event date: ${data.eventDate}`,
       `Expected guests: ${data.guests}`,
       data.requests ? `Special request: ${data.requests}` : null,
-    ].filter(Boolean).join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     // 1) Persist the enquiry first so a request is never lost, even if email fails.
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await (supabaseAdmin as any).from("enquiries").insert({
+      await supabaseAdmin.from("enquiries").insert({
         name: data.name,
         email: data.email,
         phone: data.phone,
@@ -149,7 +190,9 @@ export const sendVenueEnquiry = createServerFn({ method: "POST" })
         body: `${data.eventType} · ${data.eventDate} · ${data.guests} guests${data.venue ? ` · ${data.venue}` : ""}`,
         link: "/admin/enquiries",
       });
-    } catch (e) { console.error("notify error", e); }
+    } catch (e) {
+      console.error("notify error", e);
+    }
 
     // 2) Send notification emails (best-effort — failure must not break the flow).
     try {
@@ -157,8 +200,20 @@ export const sendVenueEnquiry = createServerFn({ method: "POST" })
       const t = await import("./email-templates");
       const guestMsg = { name: data.name, email: data.email, phone: data.phone, message: summary };
       await sendEmails([
-        { to: data.email, subject: "We received your venue booking request — Nice Hotel & Restaurant", html: t.contactGuestEmail(guestMsg), type: "venue", payload: { type: "venue", to: data.email, data } },
-        { to: adminEmail(), subject: `New venue booking: ${data.name} (${data.eventType})`, html: t.contactAdminEmail(guestMsg), reply: data.email, type: "admin_alert" },
+        {
+          to: data.email,
+          subject: "We received your venue booking request — Nice Hotel & Restaurant",
+          html: t.contactGuestEmail(guestMsg),
+          type: "venue",
+          payload: { type: "venue", to: data.email, data },
+        },
+        {
+          to: adminEmail(),
+          subject: `New venue booking: ${data.name} (${data.eventType})`,
+          html: t.contactAdminEmail(guestMsg),
+          reply: data.email,
+          type: "admin_alert",
+        },
       ]);
     } catch (e) {
       console.error("Venue enquiry email error", e);
@@ -173,7 +228,7 @@ export const sendVenueEnquiry = createServerFn({ method: "POST" })
 const sendEmailSchema = z.object({
   type: z.string().min(1).max(60),
   to: z.string().email(),
-  data: z.record(z.string(), z.any()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
   cc: z.string().email().optional(),
   subject: z.string().max(200).optional(),
 });
@@ -211,11 +266,17 @@ export const sendNewsletter = createServerFn({ method: "POST" })
     let sent = 0;
     for (const to of data.recipients) {
       const r = renderEmail("newsletter", {
-        subject: data.subject, title: data.title, body: data.body,
-        ctaUrl: data.ctaUrl, ctaLabel: data.ctaLabel,
+        subject: data.subject,
+        title: data.title,
+        body: data.body,
+        ctaUrl: data.ctaUrl,
+        ctaLabel: data.ctaLabel,
       });
       const ok = await send({
-        to, subject: data.subject, html: r.html, type: "newsletter",
+        to,
+        subject: data.subject,
+        html: r.html,
+        type: "newsletter",
         payload: { type: "newsletter", to, data: { ...data, recipients: undefined } },
       });
       if (ok) sent += 1;

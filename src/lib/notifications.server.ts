@@ -13,7 +13,7 @@ export type NotifyInput = {
 export async function notify(input: NotifyInput): Promise<void> {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await (supabaseAdmin as any).from("notifications").insert({
+    await supabaseAdmin.from("notifications").insert({
       type: input.type,
       title: input.title,
       body: input.body ?? null,

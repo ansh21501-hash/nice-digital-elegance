@@ -1,7 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { CalendarCheck, LogIn, LogOut, Clock, BedDouble, DoorOpen, IndianRupee, UtensilsCrossed, MessageSquare, Activity } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, CartesianGrid, BarChart, Bar } from "recharts";
+import {
+  CalendarCheck,
+  LogIn,
+  LogOut,
+  Clock,
+  BedDouble,
+  DoorOpen,
+  IndianRupee,
+  UtensilsCrossed,
+  MessageSquare,
+  Activity,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  CartesianGrid,
+  BarChart,
+  Bar,
+} from "recharts";
 import { PageTitle } from "@/components/admin/AdminShell";
 import { StatusBadge } from "@/components/admin/ResourceManager";
 import { useRows } from "@/lib/admin/data";
@@ -10,24 +30,66 @@ export const Route = createFileRoute("/_authenticated/admin/")({ component: Dash
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
-function StatCard({ icon: Icon, label, value, tone = "#B98A3E" }: { icon: typeof CalendarCheck; label: string; value: string | number; tone?: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  tone = "#B98A3E",
+}: {
+  icon: typeof CalendarCheck;
+  label: string;
+  value: string | number;
+  tone?: string;
+}) {
   return (
     <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: `${tone}1a`, color: tone }}><Icon className="h-[18px] w-[18px]" /></span>
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
+        <span
+          className="flex h-9 w-9 items-center justify-center rounded-xl"
+          style={{ background: `${tone}1a`, color: tone }}
+        >
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
       </div>
       <p className="mt-3 font-display text-3xl text-[#161616]">{value}</p>
     </div>
   );
 }
 
+type BookingRow = {
+  id: string;
+  check_in?: string;
+  check_out?: string;
+  created_at?: string;
+  status?: string;
+  payment_status?: string;
+  amount?: number;
+  guest_name?: string;
+  room_type?: string;
+};
+type RoomRow = { id: string; status?: string };
+type EnquiryRow = { id: string; name?: string; status?: string; message?: string };
+type NotificationRow = {
+  id: string;
+  created_at: string;
+  read?: boolean;
+  title?: string;
+  body?: string;
+};
+type MenuItemRow = { id: string };
+
 function Dashboard() {
-  const { data: bookings = [] } = useRows<any>("bookings");
-  const { data: rooms = [] } = useRows<any>("rooms");
-  const { data: enquiries = [] } = useRows<any>("enquiries");
-  const { data: menuItems = [] } = useRows<any>("menu_items");
-  const { data: activity = [] } = useRows<any>("notifications", { orderBy: "created_at", ascending: false });
+  const { data: bookings = [] } = useRows<BookingRow>("bookings");
+  const { data: rooms = [] } = useRows<RoomRow>("rooms");
+  const { data: enquiries = [] } = useRows<EnquiryRow>("enquiries");
+  const { data: menuItems = [] } = useRows<MenuItemRow>("menu_items");
+  const { data: activity = [] } = useRows<NotificationRow>("notifications", {
+    orderBy: "created_at",
+    ascending: false,
+  });
   const today = todayStr();
 
   const stats = useMemo(() => {
@@ -37,25 +99,42 @@ function Dashboard() {
     const pending = bookings.filter((b) => b.status === "pending").length;
     const occupied = rooms.filter((r) => r.status === "occupied").length;
     const available = rooms.filter((r) => r.status === "available").length;
-    const revenue = bookings.filter((b) => b.payment_status === "paid").reduce((s, b) => s + Number(b.amount || 0), 0);
+    const revenue = bookings
+      .filter((b) => b.payment_status === "paid")
+      .reduce((s, b) => s + Number(b.amount || 0), 0);
     return { checkins, checkouts, todays, pending, occupied, available, revenue };
   }, [bookings, rooms, today]);
 
   const trend = useMemo(() => {
     const days = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(); d.setDate(d.getDate() - (6 - i));
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
       const key = d.toISOString().slice(0, 10);
-      return { day: d.toLocaleDateString("en", { weekday: "short" }), key, bookings: 0, revenue: 0 };
+      return {
+        day: d.toLocaleDateString("en", { weekday: "short" }),
+        key,
+        bookings: 0,
+        revenue: 0,
+      };
     });
     for (const b of bookings) {
       const k = (b.created_at ?? "").slice(0, 10);
       const slot = days.find((x) => x.key === k);
-      if (slot) { slot.bookings += 1; slot.revenue += Number(b.amount || 0); }
+      if (slot) {
+        slot.bookings += 1;
+        slot.revenue += Number(b.amount || 0);
+      }
     }
     return days;
   }, [bookings]);
 
-  const recent = useMemo(() => [...bookings].sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? "")).slice(0, 6), [bookings]);
+  const recent = useMemo(
+    () =>
+      [...bookings]
+        .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
+        .slice(0, 6),
+    [bookings],
+  );
 
   return (
     <div>
@@ -68,8 +147,17 @@ function Dashboard() {
         <StatCard icon={Clock} label="Pending Requests" value={stats.pending} tone="#C62828" />
         <StatCard icon={DoorOpen} label="Available Rooms" value={stats.available} tone="#2E7D32" />
         <StatCard icon={BedDouble} label="Occupied Rooms" value={stats.occupied} tone="#C62828" />
-        <StatCard icon={IndianRupee} label="Revenue (paid)" value={`₹${stats.revenue.toLocaleString("en-IN")}`} />
-        <StatCard icon={UtensilsCrossed} label="Menu Items" value={menuItems.length} tone="#F9A825" />
+        <StatCard
+          icon={IndianRupee}
+          label="Revenue (paid)"
+          value={`₹${stats.revenue.toLocaleString("en-IN")}`}
+        />
+        <StatCard
+          icon={UtensilsCrossed}
+          label="Menu Items"
+          value={menuItems.length}
+          tone="#F9A825"
+        />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -86,7 +174,13 @@ function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" stroke="#00000008" vertical={false} />
               <XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={12} />
               <Tooltip />
-              <Area type="monotone" dataKey="bookings" stroke="#B98A3E" strokeWidth={2} fill="url(#g)" />
+              <Area
+                type="monotone"
+                dataKey="bookings"
+                stroke="#B98A3E"
+                strokeWidth={2}
+                fill="url(#g)"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -105,14 +199,23 @@ function Dashboard() {
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm lg:col-span-2">
-          <h3 className="mb-4 flex items-center gap-2 font-display text-xl text-[#161616]"><CalendarCheck className="h-5 w-5 text-[#B98A3E]" /> Recent Bookings</h3>
-          {recent.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No bookings yet.</p>}
+          <h3 className="mb-4 flex items-center gap-2 font-display text-xl text-[#161616]">
+            <CalendarCheck className="h-5 w-5 text-[#B98A3E]" /> Recent Bookings
+          </h3>
+          {recent.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted-foreground">No bookings yet.</p>
+          )}
           <div className="space-y-2">
             {recent.map((b) => (
-              <div key={b.id} className="flex items-center justify-between rounded-xl bg-[#FAFAF8] px-4 py-3">
+              <div
+                key={b.id}
+                className="flex items-center justify-between rounded-xl bg-[#FAFAF8] px-4 py-3"
+              >
                 <div>
                   <p className="text-sm font-medium">{b.guest_name}</p>
-                  <p className="text-xs text-muted-foreground">{b.room_type || "—"} · {b.check_in || "—"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {b.room_type || "—"} · {b.check_in || "—"}
+                  </p>
                 </div>
                 <StatusBadge value={b.status} />
               </div>
@@ -120,31 +223,54 @@ function Dashboard() {
           </div>
         </div>
         <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
-          <h3 className="mb-4 flex items-center gap-2 font-display text-xl text-[#161616]"><MessageSquare className="h-5 w-5 text-[#B98A3E]" /> Latest Enquiries</h3>
-          {enquiries.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No enquiries yet.</p>}
+          <h3 className="mb-4 flex items-center gap-2 font-display text-xl text-[#161616]">
+            <MessageSquare className="h-5 w-5 text-[#B98A3E]" /> Latest Enquiries
+          </h3>
+          {enquiries.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted-foreground">No enquiries yet.</p>
+          )}
           <div className="space-y-2">
             {[...enquiries].slice(0, 5).map((e) => (
               <div key={e.id} className="rounded-xl bg-[#FAFAF8] px-4 py-3">
-                <div className="flex items-center justify-between"><p className="text-sm font-medium">{e.name}</p><StatusBadge value={e.status} /></div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">{e.name}</p>
+                  <StatusBadge value={e.status} />
+                </div>
                 <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{e.message}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
-      <p className="mt-6 text-center text-xs text-muted-foreground"><UtensilsCrossed className="mr-1 inline h-3 w-3" /> Restaurant, events & analytics modules available in the sidebar.</p>
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        <UtensilsCrossed className="mr-1 inline h-3 w-3" /> Restaurant, events & analytics modules
+        available in the sidebar.
+      </p>
 
       <div className="mt-6 rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
-        <h3 className="mb-4 flex items-center gap-2 font-display text-xl text-[#161616]"><Activity className="h-5 w-5 text-[#B98A3E]" /> Live Activity</h3>
-        {activity.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No activity yet. New bookings, enquiries and payments appear here instantly.</p>}
+        <h3 className="mb-4 flex items-center gap-2 font-display text-xl text-[#161616]">
+          <Activity className="h-5 w-5 text-[#B98A3E]" /> Live Activity
+        </h3>
+        {activity.length === 0 && (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No activity yet. New bookings, enquiries and payments appear here instantly.
+          </p>
+        )}
         <div className="space-y-2">
           {activity.slice(0, 12).map((a) => (
-            <div key={a.id} className={`flex items-start justify-between gap-3 rounded-xl px-4 py-3 ${a.read ? "bg-[#FAFAF8]" : "bg-[#B98A3E]/5"}`}>
+            <div
+              key={a.id}
+              className={`flex items-start justify-between gap-3 rounded-xl px-4 py-3 ${a.read ? "bg-[#FAFAF8]" : "bg-[#B98A3E]/5"}`}
+            >
               <div className="min-w-0">
                 <p className="text-sm font-medium text-[#161616]">{a.title}</p>
-                {a.body && <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{a.body}</p>}
+                {a.body && (
+                  <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{a.body}</p>
+                )}
               </div>
-              <span className="shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span>
+              <span className="shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
+                {new Date(a.created_at).toLocaleString()}
+              </span>
             </div>
           ))}
         </div>

@@ -32,10 +32,16 @@ export function Header() {
       >
         <div className="container-luxe flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3" aria-label={site.name}>
-            <img src={logo} alt={`${site.name} logo`} className="h-11 w-11 rounded-full object-contain" />
+            <img
+              src={logo}
+              alt={`${site.name} logo`}
+              className="h-11 w-11 rounded-full object-contain"
+            />
             <span className="hidden sm:block leading-tight">
               <span className={`block font-display text-lg ${textColor}`}>The Nice</span>
-              <span className={`block text-[0.6rem] uppercase tracking-[0.3em] ${solid ? "text-gold" : "text-gold-soft"}`}>
+              <span
+                className={`block text-[0.6rem] uppercase tracking-[0.3em] ${solid ? "text-gold" : "text-gold-soft"}`}
+              >
                 Hotel &amp; Restaurant
               </span>
             </span>
@@ -77,7 +83,9 @@ export function Header() {
         {mobileOpen && (
           <motion.div
             className="fixed inset-0 z-[110] bg-charcoal text-ivory lg:hidden"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
             <div className="container-luxe flex items-center justify-between py-6">
               <span className="font-display text-2xl">The Nice</span>
@@ -89,7 +97,8 @@ export function Header() {
               {nav.map((n, i) => (
                 <motion.div
                   key={n.to}
-                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.05 * i }}
                 >
                   <Link
@@ -102,7 +111,10 @@ export function Header() {
                 </motion.div>
               ))}
               <button
-                onClick={() => { setMobileOpen(false); open(); }}
+                onClick={() => {
+                  setMobileOpen(false);
+                  open();
+                }}
                 className="mt-8 rounded-full bg-gold px-6 py-4 text-sm font-medium uppercase tracking-[0.2em] text-ivory"
               >
                 Book Now

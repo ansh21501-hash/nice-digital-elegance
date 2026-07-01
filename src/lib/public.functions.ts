@@ -11,7 +11,9 @@ export const getRooms = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = await publicClient();
   const { data, error } = await supabase
     .from("rooms")
-    .select("id,name,room_number,category,description,price,weekend_price,capacity,floor,amenities,images,status,sort_order,total_units")
+    .select(
+      "id,name,room_number,category,description,price,weekend_price,capacity,floor,amenities,images,status,sort_order,total_units",
+    )
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
@@ -35,7 +37,7 @@ export const getRoomAvailability = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { bookedUnitsForRoom } = await import("@/lib/booking.server");
 
-    const { data: rooms, error: rErr } = await (supabaseAdmin as any)
+    const { data: rooms, error: rErr } = await supabaseAdmin
       .from("rooms")
       .select("id,name,category,total_units")
       .eq("is_active", true);
@@ -46,8 +48,12 @@ export const getRoomAvailability = createServerFn({ method: "GET" })
       const total = Number(room.total_units) || 0;
       const booked = await bookedUnitsForRoom(room.id, checkIn, checkOut);
       result.push({
-        roomId: room.id, name: room.name, category: room.category,
-        total, booked, available: Math.max(0, total - booked),
+        roomId: room.id,
+        name: room.name,
+        category: room.category,
+        total,
+        booked,
+        available: Math.max(0, total - booked),
       });
     }
     return result;
@@ -79,7 +85,9 @@ export const getEvents = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = await publicClient();
   const { data, error } = await supabase
     .from("events")
-    .select("id,name,subtitle,badge,description,capacity,size,floor,price,image,amenities,coming_soon,sort_order")
+    .select(
+      "id,name,subtitle,badge,description,capacity,size,floor,price,image,amenities,coming_soon,sort_order",
+    )
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
@@ -100,10 +108,12 @@ export const getMenu = createServerFn({ method: "GET" }).handler(async () => {
     .eq("is_available", true)
     .order("sort_order", { ascending: true });
   if (iErr) throw new Error(iErr.message);
-  return (cats ?? []).map((c) => ({
-    category: c.name,
-    items: (items ?? [])
-      .filter((i) => i.category_id === c.id)
-      .map((i) => ({ name: i.name, price: i.price ?? "" })),
-  })).filter((c) => c.items.length > 0);
+  return (cats ?? [])
+    .map((c) => ({
+      category: c.name,
+      items: (items ?? [])
+        .filter((i) => i.category_id === c.id)
+        .map((i) => ({ name: i.name, price: i.price ?? "" })),
+    }))
+    .filter((c) => c.items.length > 0);
 });

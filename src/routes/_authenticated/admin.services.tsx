@@ -6,8 +6,32 @@ export const Route = createFileRoute("/_authenticated/admin/services")({ compone
 
 const fields: Field[] = [
   { name: "title", label: "Service Name", type: "text", required: true },
-  { name: "group_name", label: "Group", type: "select", options: ["Accommodation & Events", "Amenities & Services", "Dining & Bars"], default: "Amenities & Services" },
-  { name: "icon", label: "Icon", type: "select", options: ["bed", "building", "car", "wifi", "sparkles", "bell", "utensils", "shield", "accessibility", "star", "home"], default: "sparkles" },
+  {
+    name: "group_name",
+    label: "Group",
+    type: "select",
+    options: ["Accommodation & Events", "Amenities & Services", "Dining & Bars"],
+    default: "Amenities & Services",
+  },
+  {
+    name: "icon",
+    label: "Icon",
+    type: "select",
+    options: [
+      "bed",
+      "building",
+      "car",
+      "wifi",
+      "sparkles",
+      "bell",
+      "utensils",
+      "shield",
+      "accessibility",
+      "star",
+      "home",
+    ],
+    default: "sparkles",
+  },
   { name: "tags", label: "Tags", type: "tags" },
   { name: "sort_order", label: "Display Order", type: "number", default: 0 },
   { name: "is_active", label: "Published", type: "boolean", default: true },
@@ -23,8 +47,16 @@ const columns: Column[] = [
 function Services() {
   return (
     <div>
-      <PageTitle title="Hotel Services" subtitle="Manage amenities, dining and the services shown on the site" />
-      <ResourceManager table="services" fields={fields} columns={columns} searchKeys={["title", "group_name"]} />
+      <PageTitle
+        title="Hotel Services"
+        subtitle="Manage amenities, dining and the services shown on the site"
+      />
+      <ResourceManager
+        table="services"
+        fields={fields}
+        columns={columns}
+        searchKeys={["title", "group_name"]}
+      />
     </div>
   );
 }

@@ -1,13 +1,11 @@
 /**
- * Email sending layer — Resend (via the Lovable connector gateway).
+ * Email sending layer — Resend.
  *
- * Sends are routed through the gateway using LOVABLE_API_KEY + RESEND_API_KEY,
- * so no SMTP/TCP is required and it runs on the edge runtime. Every attempt is
- * recorded in `email_logs`. Failures never throw so booking / contact / venue
+ * Every attempt is recorded in `email_logs`. Failures never throw so booking / contact / venue
  * flows continue uninterrupted.
  */
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+const RESEND_API_URL = "https://api.resend.com/emails";
 const FROM_NAME = process.env.HOTEL_NAME || "Nice Hotel & Restaurant";
 
 function fromAddress() {
@@ -33,7 +31,7 @@ export type Message = {
 
 async function db() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin as any;
+  return supabaseAdmin;
 }
 
 async function logMessage(m: Message, status: string, error_message: string | null) {
@@ -53,25 +51,23 @@ async function logMessage(m: Message, status: string, error_message: string | nu
 }
 
 /**
- * Sends an email through the Resend gateway. Never throws — callers stay
+ * Sends an email through the Resend API. Never throws — callers stay
  * resilient so the booking / contact flow is never broken by email handling.
  */
 export async function sendEmail(m: Message): Promise<boolean> {
-  const lovableKey = process.env.LOVABLE_API_KEY;
   const resendKey = process.env.RESEND_API_KEY;
 
-  if (!lovableKey || !resendKey) {
+  if (!resendKey) {
     await logMessage(m, "failed", "Email provider not configured (missing API key)");
     return false;
   }
 
   try {
-    const res = await fetch(`${GATEWAY_URL}/emails`, {
+    const res = await fetch(RESEND_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": resendKey,
+        Authorization: `Bearer ${resendKey}`,
       },
       body: JSON.stringify({
         from: fromAddress(),
@@ -90,8 +86,8 @@ export async function sendEmail(m: Message): Promise<boolean> {
 
     await logMessage(m, "sent", null);
     return true;
-  } catch (e: any) {
-    await logMessage(m, "failed", e?.message ?? "Unknown send error");
+  } catch (e: unknown) {
+    await logMessage(m, "failed", e instanceof Error ? e.message : "Unknown send error");
     return false;
   }
 }
@@ -99,5 +95,9 @@ export async function sendEmail(m: Message): Promise<boolean> {
 /** Record a batch of emails; best-effort, each logged independently. */
 export async function sendEmails(messages: Message[]) {
   const results = await Promise.all(messages.map((m) => sendEmail(m)));
-  return { ok: results.every(Boolean), sent: results.filter(Boolean).length, total: messages.length };
+  return {
+    ok: results.every(Boolean),
+    sent: results.filter(Boolean).length,
+    total: messages.length,
+  };
 }

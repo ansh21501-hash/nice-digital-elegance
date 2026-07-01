@@ -16,12 +16,14 @@ export type TableName =
 
 export function useRows<T = Record<string, unknown>>(
   table: TableName,
-  opts?: { orderBy?: string; ascending?: boolean }
+  opts?: { orderBy?: string; ascending?: boolean },
 ) {
   return useQuery({
     queryKey: [table, opts?.orderBy, opts?.ascending],
     queryFn: async () => {
-      const rows = await adminList({ data: { table, orderBy: opts?.orderBy, ascending: opts?.ascending } });
+      const rows = await adminList({
+        data: { table, orderBy: opts?.orderBy, ascending: opts?.ascending },
+      });
       return (rows ?? []) as T[];
     },
     staleTime: 0,

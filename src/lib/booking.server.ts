@@ -1,8 +1,14 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export type RoomRow = {
-  id: string; name: string; price: number; weekend_price: number | null; capacity: number;
-  images: string[] | null; category: string | null; total_units?: number | null;
+  id: string;
+  name: string;
+  price: number;
+  weekend_price: number | null;
+  capacity: number;
+  images: string[] | null;
+  category: string | null;
+  total_units?: number | null;
 };
 
 export function nightsBetween(checkIn: string, checkOut: string): number {
@@ -13,7 +19,7 @@ export function nightsBetween(checkIn: string, checkOut: string): number {
 }
 
 export async function getRoomById(roomId: string): Promise<RoomRow> {
-  const { data, error } = await (supabaseAdmin as any)
+  const { data, error } = await supabaseAdmin
     .from("rooms")
     .select("id,name,price,weekend_price,capacity,images,category")
     .eq("id", roomId)
@@ -36,7 +42,7 @@ export async function computeQuote(roomId: string, checkIn: string, checkOut: st
  * Overlap rule: existing.check_in < newCheckOut AND existing.check_out > newCheckIn.
  */
 export async function assertAvailable(roomId: string, checkIn: string, checkOut: string) {
-  const { data, error } = await (supabaseAdmin as any)
+  const { data, error } = await supabaseAdmin
     .from("bookings")
     .select("id")
     .eq("room_id", roomId)
@@ -45,12 +51,16 @@ export async function assertAvailable(roomId: string, checkIn: string, checkOut:
     .gt("check_out", checkIn)
     .limit(1);
   if (error) throw new Error("Could not check availability");
-  if (data && data.length > 0) throw new Error("Selected dates are no longer available for this room");
+  if (data && data.length > 0)
+    throw new Error("Selected dates are no longer available for this room");
 }
 
 /** Returns an existing booking id for a Razorpay payment/order (idempotency), or null. */
-export async function findExistingBooking(orderId: string, paymentId: string): Promise<string | null> {
-  const { data } = await (supabaseAdmin as any)
+export async function findExistingBooking(
+  orderId: string,
+  paymentId: string,
+): Promise<string | null> {
+  const { data } = await supabaseAdmin
     .from("bookings")
     .select("id")
     .or(`razorpay_payment_id.eq.${paymentId},razorpay_order_id.eq.${orderId}`)
@@ -83,9 +93,13 @@ export type QuoteLine = {
 const EXTRA_BED_PER_NIGHT = 800;
 
 /** Count how many units of a room are already booked over an overlapping date range. */
-export async function bookedUnitsForRoom(roomId: string, checkIn: string, checkOut: string): Promise<number> {
+export async function bookedUnitsForRoom(
+  roomId: string,
+  checkIn: string,
+  checkOut: string,
+): Promise<number> {
   // New multi-room lines
-  const { data: lines } = await (supabaseAdmin as any)
+  const { data: lines } = await supabaseAdmin
     .from("booking_rooms")
     .select("quantity, bookings!inner(status, check_in, check_out)")
     .eq("room_id", roomId)
@@ -97,7 +111,7 @@ export async function bookedUnitsForRoom(roomId: string, checkIn: string, checkO
   for (const l of lines ?? []) units += Number(l.quantity) || 1;
 
   // Legacy single-room bookings (no child rows) — count as 1 each
-  const { data: legacy } = await (supabaseAdmin as any)
+  const { data: legacy } = await supabaseAdmin
     .from("bookings")
     .select("id")
     .eq("room_id", roomId)
@@ -105,12 +119,14 @@ export async function bookedUnitsForRoom(roomId: string, checkIn: string, checkO
     .lt("check_in", checkOut)
     .gt("check_out", checkIn);
   if (legacy && legacy.length) {
-    const ids = legacy.map((b: any) => b.id);
-    const { data: hasChildren } = await (supabaseAdmin as any)
+    const ids = legacy.map((b: { id: string }) => b.id);
+    const { data: hasChildren } = await supabaseAdmin
       .from("booking_rooms")
       .select("booking_id")
       .in("booking_id", ids);
-    const withChildren = new Set((hasChildren ?? []).map((r: any) => r.booking_id));
+    const withChildren = new Set(
+      (hasChildren ?? []).map((r: { booking_id: string }) => r.booking_id),
+    );
     for (const b of legacy) {
       if (!withChildren.has(b.id) && !countedBookingIds.has(b.id)) units += 1;
     }
@@ -120,7 +136,7 @@ export async function bookedUnitsForRoom(roomId: string, checkIn: string, checkO
 
 export async function getRoomsByIds(ids: string[]): Promise<Record<string, RoomRow>> {
   const unique = [...new Set(ids)];
-  const { data, error } = await (supabaseAdmin as any)
+  const { data, error } = await supabaseAdmin
     .from("rooms")
     .select("id,name,price,weekend_price,capacity,images,category,total_units")
     .in("id", unique)
@@ -144,7 +160,8 @@ export async function computeMultiQuote(items: RoomItemInput[], checkIn: string,
     const extraBed = !!i.extraBed;
     const unitPrice = Number(room.price) * nights + (extraBed ? EXTRA_BED_PER_NIGHT * nights : 0);
     return {
-      room, quantity: qty,
+      room,
+      quantity: qty,
       adults: Math.max(1, Number(i.adults) || 1),
       children: Math.max(0, Number(i.children) || 0),
       extraBed,
@@ -161,18 +178,25 @@ export async function computeMultiQuote(items: RoomItemInput[], checkIn: string,
 }
 
 /** Throws if any room line cannot be fulfilled for the date range. */
-export async function assertMultiAvailable(items: RoomItemInput[], checkIn: string, checkOut: string) {
+export async function assertMultiAvailable(
+  items: RoomItemInput[],
+  checkIn: string,
+  checkOut: string,
+) {
   const rooms = await getRoomsByIds(items.map((i) => i.roomId));
   // aggregate requested quantity per room
   const requested: Record<string, number> = {};
-  for (const i of items) requested[i.roomId] = (requested[i.roomId] ?? 0) + Math.max(1, Number(i.quantity) || 1);
+  for (const i of items)
+    requested[i.roomId] = (requested[i.roomId] ?? 0) + Math.max(1, Number(i.quantity) || 1);
   for (const roomId of Object.keys(requested)) {
-    const room = rooms[roomId] as any;
+    const room = rooms[roomId];
     const totalUnits = Number(room.total_units) || 1;
     const booked = await bookedUnitsForRoom(roomId, checkIn, checkOut);
     const available = totalUnits - booked;
     if (requested[roomId] > available) {
-      throw new Error(`${room.name}: only ${Math.max(0, available)} room(s) available for these dates`);
+      throw new Error(
+        `${room.name}: only ${Math.max(0, available)} room(s) available for these dates`,
+      );
     }
   }
 }

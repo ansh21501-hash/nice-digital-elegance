@@ -19,9 +19,7 @@ export function resolveImageUrl(input: unknown): string | null {
   }
   if (typeof input === "object") {
     const o = input as Record<string, unknown>;
-    return resolveImageUrl(
-      o.url ?? o.signedUrl ?? o.publicUrl ?? o.src ?? o.path ?? null,
-    );
+    return resolveImageUrl(o.url ?? o.signedUrl ?? o.publicUrl ?? o.src ?? o.path ?? null);
   }
   return null;
 }

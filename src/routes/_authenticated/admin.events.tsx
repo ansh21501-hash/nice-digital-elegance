@@ -30,8 +30,16 @@ const columns: Column[] = [
 function Events() {
   return (
     <div>
-      <PageTitle title="Venue & Events" subtitle="Manage party halls, meeting rooms and event spaces" />
-      <ResourceManager table="events" fields={fields} columns={columns} searchKeys={["name", "subtitle"]} />
+      <PageTitle
+        title="Venue & Events"
+        subtitle="Manage party halls, meeting rooms and event spaces"
+      />
+      <ResourceManager
+        table="events"
+        fields={fields}
+        columns={columns}
+        searchKeys={["name", "subtitle"]}
+      />
     </div>
   );
 }
