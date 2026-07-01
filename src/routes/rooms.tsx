@@ -99,7 +99,9 @@ function mapDbRooms(dbRooms: Awaited<ReturnType<typeof getRooms>>): DisplayRoom[
       rating: 4.8,
       price: Number(r.price) || fallback?.price || 0,
       image:
-        (Array.isArray(r.images) && r.images[0]) || fallback?.image || fallbackImage(r.category),
+        (Array.isArray(r.images) && r.images[0]) ||
+        fallback?.image ||
+        fallbackImage(r.category ?? undefined),
       size: r.floor ? `Floor ${r.floor}` : fallback?.size || "Spacious",
       occupancy: r.capacity
         ? `${r.capacity} Guest${r.capacity > 1 ? "s" : ""}`
