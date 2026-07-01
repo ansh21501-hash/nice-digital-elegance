@@ -60,10 +60,12 @@ export interface Field {
   fullWidth?: boolean;
 }
 
+export type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+
 export interface Column {
   name: string;
   label: string;
-  render?: (row: Record<string, unknown>) => ReactNode;
+  render?: (row: Row) => ReactNode;
 }
 
 interface Props {
@@ -73,7 +75,7 @@ interface Props {
   orderBy?: string;
   ascending?: boolean;
   searchKeys?: string[];
-  rowActions?: (row: Record<string, unknown>, reload: () => void) => ReactNode;
+  rowActions?: (row: Row, reload: () => void) => ReactNode;
   canEdit?: boolean;
 }
 
@@ -395,7 +397,7 @@ export function ResourceManager({
   );
 }
 
-export function StatusBadge({ value }: { value: string }) {
+export function StatusBadge({ value }: { value?: string }) {
   const map: Record<string, string> = {
     confirmed: "bg-[#2E7D32]/10 text-[#2E7D32]",
     completed: "bg-[#2E7D32]/10 text-[#2E7D32]",
@@ -419,7 +421,7 @@ export function StatusBadge({ value }: { value: string }) {
   };
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${map[value] ?? "bg-black/5 text-muted-foreground"}`}
+      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${map[value ?? ""] ?? "bg-black/5 text-muted-foreground"}`}
     >
       {String(value ?? "").replace(/_/g, " ")}
     </span>

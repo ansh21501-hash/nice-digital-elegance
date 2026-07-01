@@ -238,7 +238,10 @@ export const sendEmail = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { sendEmail: send } = await import("./email.server");
     const { renderEmail } = await import("./email-templates");
-    const rendered = renderEmail(data.type, data.data ?? {});
+    const rendered = renderEmail(
+      data.type,
+      (data.data ?? {}) as Record<string, string | undefined>,
+    );
     const ok = await send({
       to: data.to,
       subject: data.subject || rendered.subject,

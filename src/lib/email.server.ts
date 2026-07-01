@@ -43,7 +43,7 @@ async function logMessage(m: Message, status: string, error_message: string | nu
       type: m.type ?? "generic",
       status,
       error_message,
-      payload: m.payload ?? null,
+      payload: (m.payload ?? null) as never,
     });
   } catch (e) {
     console.error("email_logs insert failed", e);
