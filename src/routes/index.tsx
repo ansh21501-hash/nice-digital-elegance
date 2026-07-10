@@ -1,6 +1,7 @@
 import { AppImage } from "@/components/site/AppImage";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { ArrowRight, Star } from "lucide-react";
 import {
   site,
@@ -66,8 +67,10 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function BookingWidget() {
+function BookingWidget({ roomOptions }: { roomOptions: { name: string; price: number }[] }) {
   const { open } = useBooking();
+  const firstRoom = roomOptions[0]?.name ?? "";
+  const [selectedRoom, setSelectedRoom] = useState(firstRoom);
   const field =
     "w-full rounded-xl border border-border bg-white/60 px-4 py-3 text-sm text-charcoal outline-none focus:border-gold";
   return (
@@ -93,13 +96,21 @@ function BookingWidget() {
         </label>
         <label className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">
           Room Type
-          <select className={`${field} mt-1`} aria-label="Room type">
-            <option>Executive Suite</option>
-            <option>Deluxe Suite</option>
+          <select
+            value={selectedRoom || firstRoom}
+            onChange={(e) => setSelectedRoom(e.target.value)}
+            className={`${field} mt-1`}
+            aria-label="Room type"
+          >
+            {roomOptions.map((room) => (
+              <option key={room.name} value={room.name}>
+                {room.name} — ₹{room.price}/night
+              </option>
+            ))}
           </select>
         </label>
         <button
-          onClick={() => open()}
+          onClick={() => open(selectedRoom || firstRoom || undefined)}
           className="mt-auto rounded-xl bg-charcoal px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-ivory transition hover:bg-gold"
         >
           Search Availability
@@ -129,7 +140,7 @@ function Home() {
       seen.add(k);
       return true;
     })
-    .slice(0, 2)
+    .slice(0, 4)
     .map((r) => {
       const fb =
         rooms.find((s) => s.category?.toLowerCase() === (r.category ?? "").toLowerCase()) ??
@@ -202,7 +213,7 @@ function Home() {
         </div>
       </section>
 
-      <BookingWidget />
+      <BookingWidget roomOptions={roomTeaser.map((room) => ({ name: room.name, price: room.price }))} />
 
       {/* REAL COMFORT — EDITORIAL SPLIT WITH STATS */}
       <section className="container-luxe py-24">
@@ -309,7 +320,7 @@ function Home() {
           center
           eyebrow="Stay"
           title="Rooms & Suites"
-          sub="Choose from our executive and deluxe accommodations"
+          sub="Choose from our room categories by nightly rate"
         />
         <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-2">
           {roomTeaser.map((r, i) => (
