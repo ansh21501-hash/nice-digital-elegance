@@ -1,5 +1,6 @@
 import { AppImage } from "@/components/site/AppImage";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { X, Tag } from "lucide-react";
 import { getOffers } from "@/lib/public.functions";
 
@@ -13,10 +14,16 @@ type Offer = {
 };
 
 export function OffersPopup() {
+  const { pathname } = useLocation();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [open, setOpen] = useState(false);
+  const canShowPopup = pathname === "/";
 
   useEffect(() => {
+    if (!canShowPopup) {
+      setOpen(false);
+      return;
+    }
     if (typeof window === "undefined") return;
     if (sessionStorage.getItem("offers_popup_seen")) return;
     let active = true;
@@ -30,7 +37,7 @@ export function OffersPopup() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [canShowPopup]);
 
   const close = () => {
     setOpen(false);

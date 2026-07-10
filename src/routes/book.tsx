@@ -160,7 +160,7 @@ function BookPage() {
       {
         key: newKey(),
         roomId: first.id,
-        quantity: 0,
+        quantity: 1,
         adults: 2,
         children: 0,
         extraBed: false,
@@ -228,7 +228,7 @@ function BookPage() {
       {
         key: newKey(),
         roomId: first.id,
-        quantity: 0,
+        quantity: 1,
         adults: 2,
         children: 0,
         extraBed: false,
@@ -574,15 +574,18 @@ function BookPage() {
                             <span className="mb-1.5 block">Number of rooms</span>
                             <input
                               type="number"
-                              min={0}
-                              max={a?.available ?? 10}
+                              min={1}
+                              max={Math.max(1, a?.available ?? 10)}
                               value={l.quantity}
-                              placeholder="0"
+                              placeholder="1"
                               onChange={(e) =>
                                 updateLine(l.key, {
                                   quantity: Math.max(
-                                    0,
-                                    Math.min(a?.available ?? 99, Number(e.target.value)),
+                                    1,
+                                    Math.min(
+                                      Math.max(1, a?.available ?? 99),
+                                      Number(e.target.value) || 1,
+                                    ),
                                   ),
                                 })
                               }
