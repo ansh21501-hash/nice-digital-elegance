@@ -309,9 +309,15 @@ function BookPage() {
         extraBed: l.extraBed,
         notes: l.notes || undefined,
       }));
-      const orderRes = await fetch("/api/public/razorpay/order", {
+      const fnBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+      const orderRes = await fetch(`${fnBase}/razorpay-order`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          apikey: anonKey,
+          authorization: `Bearer ${anonKey}`,
+        },
         body: JSON.stringify({ items, checkIn, checkOut }),
       });
       const order = await orderRes.json();
@@ -333,11 +339,12 @@ function BookPage() {
           try {
             const { data: sess } = await supabase.auth.getSession();
             const accessToken = sess.session?.access_token;
-            const vr = await fetch("/api/public/razorpay/verify", {
+            const vr = await fetch(`${fnBase}/razorpay-verify`, {
               method: "POST",
               headers: {
                 "content-type": "application/json",
-                ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+                apikey: anonKey,
+                authorization: `Bearer ${accessToken ?? anonKey}`,
               },
               body: JSON.stringify({
                 razorpay_order_id: resp.razorpay_order_id,
