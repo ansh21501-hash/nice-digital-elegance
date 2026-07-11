@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getRooms, getRoomAvailability } from "@/lib/public.functions";
-import { site } from "@/data/content";
+import { rooms as fallbackRooms, site } from "@/data/content";
 
 type Room = {
   id: string;
@@ -50,7 +50,27 @@ export const Route = createFileRoute("/book")({
   validateSearch: (s: Record<string, unknown>): { room?: string } => ({
     room: typeof s.room === "string" ? s.room : undefined,
   }),
-  loader: () => getRooms(),
+  loader: async () => {
+    try {
+      const dbRooms = await getRooms();
+      if (Array.isArray(dbRooms) && dbRooms.length) return dbRooms;
+    } catch (error) {
+      console.error("Could not load rooms from backend", error);
+    }
+
+    return fallbackRooms.map((room, index) => ({
+      id: room.slug,
+      name: room.name,
+      category: room.category,
+      description: room.description,
+      price: room.price,
+      weekend_price: room.price,
+      capacity: room.occupancy.includes("3") ? 3 : 2,
+      amenities: room.amenities,
+      images: [room.image],
+      room_number: `FALLBACK-${index + 1}`,
+    }));
+  },
   head: () => ({
     meta: [
       { title: "Book Your Stay — Nice Hotel And Restaurant, Mansa" },

@@ -4,8 +4,36 @@ import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import path from "node:path";
 
+const supabaseUrl = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+const supabasePublishableKey =
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
+const supabaseProjectId = process.env.VITE_SUPABASE_PROJECT_ID;
+
 export default defineConfig({
   plugins: [react(), tsConfigPaths(), tailwindcss()],
+  define: {
+    ...(supabaseUrl
+      ? { "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(supabaseUrl) }
+      : {}),
+    ...(supabasePublishableKey
+      ? {
+          "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+            supabasePublishableKey,
+          ),
+        }
+      : {}),
+    ...(supabaseProjectId
+      ? { "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(supabaseProjectId) }
+      : {}),
+    ...(supabaseUrl ? { "process.env.SUPABASE_URL": JSON.stringify(supabaseUrl) } : {}),
+    ...(supabasePublishableKey
+      ? {
+          "process.env.SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+            supabasePublishableKey,
+          ),
+        }
+      : {}),
+  },
   resolve: {
     alias: {
       // Compatibility shims so existing imports keep working on the Vite SPA
