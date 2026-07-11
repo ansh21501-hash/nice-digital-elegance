@@ -74,44 +74,73 @@ export const heroStats = [
 
 export const rooms = [
   {
-    slug: "executive-suite",
-    name: "Executive Suite",
-    category: "Executive",
-    badge: "Most Booked",
+    slug: "budget-1000-room-category",
+    name: "₹1000 Room Category",
+    category: "Budget",
+    badge: "2 Rooms",
+    rating: 4.7,
+    price: 1000,
+    image: site.images.executive,
+    size: "Comfort Room",
+    occupancy: "2 Adults",
+    view: "City View",
+    description:
+      "A clean, comfortable and budget-friendly room category with essential amenities for a restful stay.",
+    amenities: ["Free WiFi", "Air Conditioning", "LED TV", "Attached Bathroom", "Housekeeping"],
+  },
+  {
+    slug: "comfort-1500-room-category",
+    name: "₹1500 Room Category",
+    category: "Comfort",
+    badge: "3 Rooms",
     rating: 4.8,
     price: 1500,
     image: site.images.executive,
-    size: "45 sqm",
+    size: "Premium Room",
     occupancy: "2 Adults",
     view: "City View",
-    description: "Spacious executive suite with modern amenities, perfect for business travelers.",
-    amenities: [
-      "King Bed",
-      "Smart TV",
-      "Rain Shower",
-      "Work Desk",
-      "Free WiFi",
-      "Air Conditioning",
-      "Room Service",
-    ],
+    description:
+      "A refined comfort room category with upgraded interiors, smart TV, work space and room service.",
+    amenities: ["Free WiFi", "Air Conditioning", "Smart TV", "Work Desk", "Room Service"],
   },
   {
-    slug: "deluxe-suite",
-    name: "Deluxe Suite",
+    slug: "deluxe-2000-room-category",
+    name: "₹2000 Room Category",
     category: "Deluxe",
-    badge: "Luxury Choice",
+    badge: "3 Rooms",
     rating: 4.9,
     price: 2000,
     image: site.images.deluxe,
-    size: "60 sqm",
-    occupancy: "2 Adults + 1 Child",
+    size: "Spacious Room",
+    occupancy: "3 Guests",
     view: "Panoramic City View",
-    description: "Elegant deluxe suite with premium furnishings and stunning city views.",
-    amenities: ["King Bed", "Smart TV", "Free WiFi", "Premium Toiletries", "Mini Bar", "Work Desk"],
+    description:
+      "A spacious deluxe room category with premium furnishings, seating space and elevated comfort for families or business stays.",
+    amenities: ["Free WiFi", "Air Conditioning", "Smart TV", "Seating Lounge", "Mini Bar"],
+  },
+  {
+    slug: "premium-2500-room-category",
+    name: "₹2500 Room Category",
+    category: "Premium",
+    badge: "1 Room",
+    rating: 4.9,
+    price: 2500,
+    image: site.images.deluxe,
+    size: "Suite Room",
+    occupancy: "3 Guests",
+    view: "Premium City View",
+    description:
+      "A premium suite-style room category with elegant furnishings, lounge comfort and upgraded amenities for a special stay.",
+    amenities: ["Free WiFi", "Air Conditioning", "Smart TV", "Living Lounge", "24x7 Room Service"],
   },
 ];
 
-export const roomTypes = ["Executive Suite", "Deluxe Suite"];
+export const roomTypes = [
+  "₹1000 Room Category",
+  "₹1500 Room Category",
+  "₹2000 Room Category",
+  "₹2500 Room Category",
+];
 
 export const whyChooseRooms = [
   {
