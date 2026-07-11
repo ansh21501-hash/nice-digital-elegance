@@ -25,6 +25,14 @@ export default defineConfig({
     ...(supabaseProjectId
       ? { "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(supabaseProjectId) }
       : {}),
+    ...(supabaseUrl ? { "process.env.SUPABASE_URL": JSON.stringify(supabaseUrl) } : {}),
+    ...(supabasePublishableKey
+      ? {
+          "process.env.SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+            supabasePublishableKey,
+          ),
+        }
+      : {}),
   },
   resolve: {
     alias: {
