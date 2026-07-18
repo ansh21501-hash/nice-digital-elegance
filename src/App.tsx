@@ -3,6 +3,8 @@ import { RouteRenderer } from "@/compat/tanstack-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { OffersPopup } from "@/components/site/OffersPopup";
+import { ScrollToTop } from "@/components/site/ScrollToTop";
+import { PageTransition } from "@/components/site/PageTransition";
 
 import { Route as IndexRoute } from "@/routes/index";
 import { Route as AboutRoute } from "@/routes/about";
@@ -31,8 +33,8 @@ function SiteLayout() {
   return (
     <>
       <Header />
-      <main>
-        <Outlet />
+      <main className="min-h-[70vh]">
+        <PageTransition />
       </main>
       <Footer />
       <OffersPopup />
@@ -62,6 +64,8 @@ function NotFound() {
 
 export default function App() {
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       <RRRoute element={<SiteLayout />}>
         <RRRoute path="/" element={<RouteRenderer route={IndexRoute} />} />
@@ -92,5 +96,6 @@ export default function App() {
 
       <RRRoute path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
