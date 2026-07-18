@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { BookingProvider } from "@/components/site/booking";
 import { Toaster } from "@/components/ui/sonner";
 import { __setQueryClient } from "@/compat/tanstack-router";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 0, refetchOnWindowFocus: false } },
@@ -18,17 +19,19 @@ __setQueryClient(queryClient);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <BrowserRouter>
-            <BookingProvider>
-              <App />
-              <Toaster position="top-center" />
-            </BookingProvider>
-          </BrowserRouter>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <BrowserRouter>
+              <BookingProvider>
+                <App />
+                <Toaster position="top-center" />
+              </BookingProvider>
+            </BrowserRouter>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );
