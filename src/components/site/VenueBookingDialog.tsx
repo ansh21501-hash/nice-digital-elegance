@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,32 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { sendVenueEnquiry } from "@/lib/email.functions";
+import { friendlyError } from "@/lib/errors";
+
+const venueSchema = z.object({
+  venue: z.string().optional(),
+  eventType: z.string().min(1, "Please select an event type"),
+  eventDate: z.string().min(1, "Please pick a date").refine((d) => {
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return dt >= today;
+  }, "Event date must be today or later"),
+  guests: z
+    .string()
+    .min(1, "Please enter expected guests")
+    .refine((v) => Number(v) >= 1 && Number(v) <= 5000, "Guests must be between 1 and 5000"),
+  name: z.string().trim().min(1, "Please enter your full name").max(100),
+  email: z.string().trim().email("Please enter a valid email").max(255),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Please enter a valid phone number")
+    .max(20)
+    .regex(/^[0-9+\-\s()]+$/, "Phone number contains invalid characters"),
+  requests: z.string().max(1000, "Special request is too long").optional(),
+});
 
 const EVENT_TYPES = [
   "Wedding",
@@ -48,13 +75,20 @@ export function VenueBookingDialog({
       phone: String(fd.get("phone") || ""),
       requests: String(fd.get("requests") || "") || undefined,
     };
+    const parsed = venueSchema.safeParse(payload);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Please check the form");
+      return;
+    }
     setLoading(true);
     try {
-      await submit({ data: payload });
+      await submit({ data: parsed.data });
       toast.success("Booking request sent! Our team will contact you shortly.");
       onClose();
-    } catch {
-      toast.error("Could not send your request. Please call +91 9216400005.");
+    } catch (err) {
+      toast.error(friendlyError(err, "Could not send your request"), {
+        description: "Please call +91 9216400005.",
+      });
     } finally {
       setLoading(false);
     }
