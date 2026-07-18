@@ -3,6 +3,7 @@
 // Admin unlock returns a token that is stored in localStorage and sent with
 // every subsequent privileged request.
 import { supabase } from "@/integrations/supabase/client";
+import { friendlyError } from "@/lib/errors";
 
 const TOKEN_KEY = "nice_admin_token";
 
@@ -15,12 +16,16 @@ function getToken() {
 }
 
 async function adm(action: string, payload?: Record<string, unknown>) {
-  const { data, error } = await supabase.functions.invoke("admin", {
-    body: { action, token: getToken(), ...(payload ?? {}) },
-  });
-  if (error) throw new Error(error.message);
-  if (data && (data as any).error) throw new Error((data as any).error);
-  return data as any;
+  try {
+    const { data, error } = await supabase.functions.invoke("admin", {
+      body: { action, token: getToken(), ...(payload ?? {}) },
+    });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return data as any;
+  } catch (e) {
+    throw new Error(friendlyError(e, "Admin action failed. Please try again."));
+  }
 }
 
 export const adminUnlock = async ({ data }: { data: { password: string } }) => {

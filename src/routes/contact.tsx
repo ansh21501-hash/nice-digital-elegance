@@ -2,12 +2,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, Instagram, Send } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { sendContactEmail } from "@/lib/email.functions";
 import { site } from "@/data/content";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHeader } from "@/components/site/ui";
 import { breadcrumbLd } from "@/lib/seo";
+import { friendlyError } from "@/lib/errors";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Please enter your name").max(100, "Name is too long"),
+  email: z.string().trim().email("Please enter a valid email address").max(255),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Please enter a valid phone number")
+    .max(20, "Phone number is too long")
+    .regex(/^[0-9+\-\s()]+$/, "Phone number contains invalid characters"),
+  message: z.string().trim().min(1, "Please write a message").max(1000, "Message is too long (max 1000 chars)"),
+});
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -56,21 +70,25 @@ function Contact() {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const fd = new FormData(form);
+    const parsed = contactSchema.safeParse({
+      name: String(fd.get("name") || ""),
+      email: String(fd.get("email") || ""),
+      phone: String(fd.get("phone") || ""),
+      message: String(fd.get("message") || ""),
+    });
+    if (!parsed.success) {
+      const first = parsed.error.issues[0]?.message ?? "Please check the form";
+      toast.error(first);
+      return;
+    }
     setSending(true);
     try {
-      await submitContact({
-        data: {
-          name: String(fd.get("name") || ""),
-          email: String(fd.get("email") || ""),
-          phone: String(fd.get("phone") || ""),
-          message: String(fd.get("message") || ""),
-        },
-      });
+      await submitContact({ data: parsed.data });
       setSent(true);
       form.reset();
       toast.success("Thank you! A confirmation email is on its way.");
-    } catch {
-      toast.error("Could not send your message", {
+    } catch (err) {
+      toast.error(friendlyError(err, "Could not send your message"), {
         description: `Please call us at ${site.phone}.`,
       });
     } finally {
