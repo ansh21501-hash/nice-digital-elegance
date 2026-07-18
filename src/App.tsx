@@ -1,4 +1,4 @@
-import { Routes, Route as RRRoute, Outlet, Link } from "react-router-dom";
+import { Routes, Route as RRRoute, Link } from "react-router-dom";
 import { RouteRenderer } from "@/compat/tanstack-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
