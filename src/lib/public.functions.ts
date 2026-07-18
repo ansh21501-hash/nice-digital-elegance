@@ -1,14 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Client wrappers for the `public-data` Supabase Edge Function.
 import { supabase } from "@/integrations/supabase/client";
+import { friendlyError } from "@/lib/errors";
 
 async function pub(action: string, payload?: Record<string, unknown>) {
-  const { data, error } = await supabase.functions.invoke("public-data", {
-    body: { action, ...(payload ?? {}) },
-  });
-  if (error) throw new Error(error.message);
-  if (data && (data as any).error) throw new Error((data as any).error);
-  return (data as any)?.result ?? data;
+  try {
+    const { data, error } = await supabase.functions.invoke("public-data", {
+      body: { action, ...(payload ?? {}) },
+    });
+    if (error) throw new Error(error.message);
+    if (data && (data as any).error) throw new Error((data as any).error);
+    return (data as any)?.result ?? data;
+  } catch (e) {
+    throw new Error(friendlyError(e, `We couldn't load ${action}. Please try again.`));
+  }
 }
 
 export const getRooms = () => pub("getRooms");
