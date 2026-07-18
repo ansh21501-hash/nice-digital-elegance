@@ -4,10 +4,18 @@ import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import path from "node:path";
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+// These are public browser credentials (not service-role secrets). Keeping a
+// fallback makes third-party SPA builds work even when a host does not import
+// the Lovable Cloud build variables.
+const supabaseUrl =
+  process.env.VITE_SUPABASE_URL ??
+  process.env.SUPABASE_URL ??
+  "https://epzfiwshtokyfkcnotih.supabase.co";
 const supabasePublishableKey =
-  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
-const supabaseProjectId = process.env.VITE_SUPABASE_PROJECT_ID;
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.SUPABASE_PUBLISHABLE_KEY ??
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwemZpd3NodG9reWZrY25vdGloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MDc3MzQsImV4cCI6MjA5ODM4MzczNH0.SH-cPIiTSlS_DlPXsdseQot-wooTJTs2cpF3RT_ay8Y";
+const supabaseProjectId = process.env.VITE_SUPABASE_PROJECT_ID ?? "epzfiwshtokyfkcnotih";
 
 export default defineConfig({
   plugins: [react(), tsConfigPaths(), tailwindcss()],

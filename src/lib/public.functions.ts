@@ -16,7 +16,23 @@ async function pub(action: string, payload?: Record<string, unknown>) {
   }
 }
 
-export const getRooms = () => pub("getRooms");
+export const getRooms = async () => {
+  try {
+    return await pub("getRooms");
+  } catch (functionError) {
+    // Public room inventory is also readable through the Data API. This keeps
+    // the rooms and booking screens usable during a transient function outage.
+    const { data, error } = await supabase
+      .from("rooms")
+      .select(
+        "id,name,room_number,category,description,price,weekend_price,capacity,floor,amenities,images,status,sort_order,total_units",
+      )
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw functionError;
+    return data ?? [];
+  }
+};
 export const getRoomAvailability = (arg?: { data?: { checkIn?: string; checkOut?: string } }) =>
   pub("getRoomAvailability", arg?.data ?? {});
 export const getOffers = () => pub("getOffers");

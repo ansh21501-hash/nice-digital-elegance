@@ -142,6 +142,7 @@ function BookPage() {
   const [checkOut, setCheckOut] = useState("");
   const [lines, setLines] = useState<Line[]>([]);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [requests, setRequests] = useState("");
   const [availability, setAvailability] = useState<Avail[]>([]);
@@ -149,24 +150,12 @@ function BookPage() {
   const [done, setDone] = useState<{ id: string } | null>(null);
 
   // Auth
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signup");
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPass, setAuthPass] = useState("");
-  const [authBusy, setAuthBusy] = useState(false);
-
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
-        setUser({ id: data.user.id, email: data.user.email ?? "" });
-        setAuthEmail(data.user.email ?? "");
+        setEmail(data.user.email ?? "");
       }
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s?.user) setUser({ id: s.user.id, email: s.user.email ?? "" });
-      else setUser(null);
-    });
-    return () => sub.subscription.unsubscribe();
   }, []);
 
   // Seed first line from query param, else from first room type
@@ -257,38 +246,6 @@ function BookPage() {
     ]);
   };
 
-  const auth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthBusy(true);
-    try {
-      if (authMode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: authEmail,
-          password: authPass,
-          options: { emailRedirectTo: window.location.origin + "/book" },
-        });
-        if (error) throw error;
-        const { error: e2 } = await supabase.auth.signInWithPassword({
-          email: authEmail,
-          password: authPass,
-        });
-        if (e2) throw e2;
-        toast.success("Account created — you're signed in");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: authEmail,
-          password: authPass,
-        });
-        if (error) throw error;
-        toast.success("Welcome back");
-      }
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
-    } finally {
-      setAuthBusy(false);
-    }
-  };
-
   const validateRooms = (): string | null => {
     if (!lines.length) return "Please add at least one room";
     if (totalRooms < 1) return "Please select at least one room (set the number of rooms above 0)";
@@ -303,7 +260,6 @@ function BookPage() {
   };
 
   const pay = async () => {
-    if (!user) return;
     if (nights <= 0) {
       toast.error("Please choose valid dates");
       return;
@@ -313,8 +269,8 @@ function BookPage() {
       toast.error(rerr);
       return;
     }
-    if (!name || !phone) {
-      toast.error("Please enter your name and phone");
+    if (!name.trim() || !/^\S+@\S+\.\S+$/.test(email) || !/^[+\d][\d\s-]{7,14}$/.test(phone)) {
+      toast.error("Please enter a valid name, email and phone number");
       return;
     }
     setPaying(true);
@@ -351,7 +307,7 @@ function BookPage() {
         name: "Nice Hotel & Restaurant",
         description: `${totalRooms} room${totalRooms > 1 ? "s" : ""} · ${order.nights} night${order.nights > 1 ? "s" : ""}`,
         order_id: order.orderId,
-        prefill: { name, email: user.email, contact: phone },
+        prefill: { name, email, contact: phone },
         theme: { color: "#B98A3E" },
         modal: { ondismiss: () => setPaying(false) },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -375,7 +331,7 @@ function BookPage() {
                 checkOut,
                 guests: totalGuests,
                 guestName: name,
-                guestEmail: user.email,
+                guestEmail: email,
                 guestPhone: phone,
                 specialRequests: requests || undefined,
               }),
@@ -416,7 +372,7 @@ function BookPage() {
           <strong>
             {totalRooms} room{totalRooms > 1 ? "s" : ""}
           </strong>{" "}
-          is confirmed and a confirmation email is on its way to {user?.email}.
+          is confirmed and a confirmation email is on its way to {email}.
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           Reference: {done.id.slice(0, 8).toUpperCase()}
@@ -439,7 +395,7 @@ function BookPage() {
     );
   }
 
-  const steps = ["Dates", "Rooms", "Account", "Pay"];
+  const steps = ["Dates", "Rooms", "Details", "Pay"];
 
   return (
     <div className="bg-ivory pb-24 pt-28">
@@ -669,66 +625,14 @@ function BookPage() {
               </div>
             )}
 
-            {/* Step 3 — Account */}
+            {/* Step 3 — Guest details */}
             {step === 3 && (
               <div>
                 <h2 className="font-display text-2xl text-charcoal">Your details</h2>
-                {!user ? (
-                  <div className="mt-5">
-                    <div className="mb-4 inline-flex rounded-full bg-beige p-1 text-xs">
-                      <button
-                        onClick={() => setAuthMode("signup")}
-                        className={`rounded-full px-4 py-1.5 ${authMode === "signup" ? "bg-charcoal text-ivory" : "text-muted-foreground"}`}
-                      >
-                        Create account
-                      </button>
-                      <button
-                        onClick={() => setAuthMode("signin")}
-                        className={`rounded-full px-4 py-1.5 ${authMode === "signin" ? "bg-charcoal text-ivory" : "text-muted-foreground"}`}
-                      >
-                        Sign in
-                      </button>
-                    </div>
-                    <p className="mb-3 text-xs text-muted-foreground">
-                      Sign in so we can save your booking and send confirmations.
-                    </p>
-                    <form onSubmit={auth} className="grid grid-cols-1 gap-3">
-                      <input
-                        required
-                        type="email"
-                        placeholder="Email"
-                        value={authEmail}
-                        onChange={(e) => setAuthEmail(e.target.value)}
-                        className={fieldCls}
-                      />
-                      <input
-                        required
-                        type="password"
-                        placeholder="Password (min 6 chars)"
-                        minLength={6}
-                        value={authPass}
-                        onChange={(e) => setAuthPass(e.target.value)}
-                        className={fieldCls}
-                      />
-                      <button
-                        type="submit"
-                        disabled={authBusy}
-                        className="rounded-full bg-gold px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-ivory transition hover:bg-charcoal disabled:opacity-60"
-                      >
-                        {authBusy
-                          ? "Please wait…"
-                          : authMode === "signup"
-                            ? "Create account & continue"
-                            : "Sign in & continue"}
-                      </button>
-                    </form>
-                  </div>
-                ) : (
-                  <div className="mt-5">
-                    <div className="flex items-center gap-2 rounded-xl bg-beige px-4 py-3 text-sm text-charcoal">
-                      <ShieldCheck className="h-4 w-4 text-gold" /> Signed in as {user.email}
-                    </div>
-                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <p className="mt-2 text-xs text-muted-foreground">
+                  No account is required. We use these details for your booking confirmation.
+                </p>
+                    <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <input
                         required
                         placeholder="Full name"
@@ -738,10 +642,18 @@ function BookPage() {
                       />
                       <input
                         required
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={fieldCls}
+                      />
+                      <input
+                        required
                         placeholder="Phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className={fieldCls}
+                        className={`${fieldCls} sm:col-span-2`}
                       />
                       <textarea
                         placeholder="Special requests for the whole booking (optional)"
@@ -751,8 +663,6 @@ function BookPage() {
                         className={`${fieldCls} sm:col-span-2`}
                       />
                     </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -820,9 +730,13 @@ function BookPage() {
                       const e = validateRooms();
                       if (e) return toast.error(e);
                     }
-                    if (step === 3 && !user) return toast.error("Please sign in to continue");
-                    if (step === 3 && (!name || !phone))
-                      return toast.error("Please enter your name and phone");
+                    if (
+                      step === 3 &&
+                      (!name.trim() ||
+                        !/^\S+@\S+\.\S+$/.test(email) ||
+                        !/^[+\d][\d\s-]{7,14}$/.test(phone))
+                    )
+                      return toast.error("Please enter a valid name, email and phone number");
                     setStep((s) => s + 1);
                   }}
                   className="flex items-center gap-1.5 rounded-full bg-gold px-7 py-3 text-xs font-medium uppercase tracking-[0.2em] text-ivory transition hover:bg-charcoal"
